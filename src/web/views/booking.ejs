@@ -1,0 +1,29 @@
+<% include top/header %>
+<h2 class="title-box-form">Select Subject & Activity</h2>
+<div class="container">
+    <div class="box-form">
+        <form action="#">
+            <select class="form-control">
+
+                <% subject.forEach(el => { %>
+                    <option id="<%= el.id %>"><%= el.title %></option>
+                <% }); %>
+
+            </select>
+            <div class="radio">
+                <label>
+                    <input type="radio" name="optionsRadios" id="optionsRadios1" value="option1" checked>
+                    <strong>Single-day View (All Tutors)</strong>
+                </label>
+                <label>
+                    <input type="radio" name="optionsRadios" id="optionsRadios1" value="option2">
+                    <strong>Multi-day View (Single Tutor)</strong>
+                </label>
+            </div>
+            <div class="form-group">
+            <button class="btn btn-primary form-control">Next</button>
+            </div>
+        </form>
+    </div>
+</div>
+<% include bottom/footer %>

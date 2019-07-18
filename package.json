@@ -1,0 +1,49 @@
+{
+  "name": "ascmanagement",
+  "version": "1.0.0",
+  "description": "The Management App of Mission College ASC",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "lint": "tslint -c tslint.json -p tsconfig.json",
+    "start-desktop": "npm run build && electron ./dist/desktop/app.js",
+    "start-web": "npm run build && node ./dist/web/app.js",
+    "start-web:watch": "nodemon"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tintheanh/ascManagement.git"
+  },
+  "author": "Anh Nguyen & Tri Do",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tintheanh/ascManagement/issues"
+  },
+  "homepage": "https://github.com/tintheanh/ascManagement#readme",
+  "dependencies": {
+    "@types/express": "^4.17.0",
+    "@types/mysql": "^2.15.6",
+    "body-parser": "^1.19.0",
+    "ejs": "^2.6.2",
+    "electron": "5.0.4",
+    "express": "^4.17.1",
+    "firebase": "^6.3.0",
+    "typescript": "^3.5.2"
+  },
+  "devDependencies": {
+    "@types/firebase": "^3.2.1",
+    "@types/node": "^12.0.8",
+    "nodemon": "^1.19.1",
+    "ts-node": "^8.3.0"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "**/*.test.ts",
+      "**/*.spec.ts",
+      ".git",
+      "node_modules"
+    ],
+    "exec": "npm run start-web",
+    "ext": "ts"
+  }
+}

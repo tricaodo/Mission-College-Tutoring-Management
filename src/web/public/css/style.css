@@ -1,0 +1,29 @@
+/**************** General ****************/
+.container{
+   display: flex; 
+   justify-content: center;
+   align-items: center; 
+}
+
+.jumbotron{
+   width: 70%;
+}
+
+/**************** Box Form ****************/
+.box-form{
+   width: 30%;
+   margin: 15px auto;
+   padding: 18px 18px 5px 18px;
+   border: 1px solid rgb(202, 202, 202);
+   border-radius: 10px;
+}
+
+.login-btn-landing{
+   margin-top: 10px;
+}
+
+.title-box-form{
+   text-align: center;
+}
+
+

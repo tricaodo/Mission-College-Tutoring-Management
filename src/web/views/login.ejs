@@ -1,0 +1,28 @@
+<% include top/header %>
+<h2 class="title-box-form">Login</h2>
+
+<div class="container">
+    <div class="box-form">
+            
+            <% if(errorMessage.message && errorMessage.message.length > 3){ %>
+                <div class="alert alert-danger" role="alert"><%= errorMessage.message %></div>
+            <% } %>    
+        <form action="/login" method="POST">
+            <label>Student ID*</label>
+            <div class="form-group">
+                <input class="form-control" type="text" name="emailInput" placeholder="Enter your ID">
+            </div>
+            <label>Password*</label>
+            <div class="form-group">
+                <input class="form-control" type="password" name="passwordInput" placeholder="Enter your password">
+            </div>
+            <div class="form-group">
+                <button class="form-control btn btn-primary">Login</button>
+            </div>
+            <div class="form-group">
+                <a href="/forget" class="form-control btn btn-primary">Forget Password?</a>
+            </div>
+        </form>
+    </div>
+</div>
+<% include bottom/footer %>
