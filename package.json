@@ -6,13 +6,11 @@
     "build": "tsc",
     "watch": "tsc -w",
     "lint": "tslint -c tslint.json -p tsconfig.json",
-    "start-desktop": "npm run build && electron ./dist/desktop/app.js",
-    "start-web": "npm run build && node ./dist/web/app.js",
-    "start-web:watch": "nodemon"
+    "web": "npm run build && node ./dist/web/app.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/tintheanh/ascManagement.git"
+    "url": "https://github.com/tricaodo/Mission-College-Tutoring-Management.git"
   },
   "author": "Anh Nguyen & Tri Do",
   "license": "ISC",
@@ -42,7 +40,7 @@
       ".git",
       "node_modules"
     ],
-    "exec": "npm run start-web",
+    "exec": "npm run web",
     "ext": "ts"
   }
 }

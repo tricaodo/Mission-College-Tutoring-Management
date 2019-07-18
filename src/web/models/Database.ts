@@ -1,5 +1,5 @@
 import * as firebase from 'firebase';
-import { Student } from './Student';
+
 const firebaseConfig = {
     apiKey: "AIzaSyCEwH7H3TERDuRQDA_qbxLEs6VsdrfG2iM",
     authDomain: "asc-management-app.firebaseapp.com",
@@ -32,19 +32,16 @@ const getInstance = {
 
 
     login: function (email: string, password: string) {
-        // const promise = auth.signInWithEmailAndPassword(email, password)
-        // let errorMessage = '';
-        // promise.catch(error => errorMessage = error.message);
-        // return errorMessage;
         return new Promise((resolve, rejects) => {
             auth.signInWithEmailAndPassword(email, password)
-            .then(snapshot => {
-                resolve(snapshot);
-            })
-            .catch((error: any) => {
-                rejects(error);
-            });
+                .then(snapshot => {
+                    resolve(snapshot);
+                })
+                .catch((error: any) => {
+                    rejects(error);
+                });
         })
+
     },
     getSubjects: function () {
         return new Promise((resolve, rejects) => {
@@ -57,13 +54,13 @@ const getInstance = {
                 });
         });
     },
-    
-    // ============== MIDDLEWARE FUNCTION ============== // 
+
+    // ============== MIDDLEWARE FUNCTION ============== //
     isAuthenticated: function (req: any, res: any, next: any) {
         let user = auth.currentUser;
         if (user !== null) {
             req.user = user;
-            next(); 
+            next();
         } else {
             res.redirect('/login');
         }
@@ -74,8 +71,8 @@ const getInstance = {
             req.user = user;
             res.redirect('/categories');
         }else{
-            res.render('login', {errorMessage: ''});
+            next();
         }
     }
 }
-export { getInstance };
+export {getInstance};
