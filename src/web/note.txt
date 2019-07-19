@@ -1,1 +1,15 @@
 - WORKING ON THE MAP
+
+{ 
+    '0': { from: '10:00 AM', to: '12:00 PM' },
+    '1': { from: '02:30 PM', to: '05:30 PM' } 
+}
+    null
+{ 
+    '0': { from: '12:00 PM', to: '04:00 PM' },
+    '1': { from: '05:30 PM', to: '06:00 PM' } 
+}
+    null
+{ 
+    '0': { from: '10:00 AM', to: '02:00 PM' }
+}

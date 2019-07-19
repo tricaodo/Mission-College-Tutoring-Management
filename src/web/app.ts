@@ -5,6 +5,7 @@ import path = require('path');
 import * as db from './models/Database';
 import { Subject } from "./models/Subject";
 import {Student} from "./models/Student";
+import {Tutor} from "./models/Tutor";
 
 const app: express.Application = express();
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -73,7 +74,10 @@ app.get('/categories/booking', isAuthenticated, (_, res) => {
 });
 
 app.get('/categories/show-tutors-days-times', isAuthenticated, (_, res) => {
-    let schedules: any;
+    
+    let tutors: Tutor[] = [];
+
+    let schedules = new Array();
     db.getInstance.getTutors()
     .then((value: any) => {
         value.forEach((doc:any) => {
@@ -81,18 +85,32 @@ app.get('/categories/show-tutors-days-times', isAuthenticated, (_, res) => {
             const id = doc.id;
             const firstName = data['first_name'];
             const lastName = data['last_name'];
-            schedules = data['work_schedule'];
+            const email = data['email'];
+            const subjects: any[] = data['subjects'];
+            const work_schedules = data['work_schedule'];
 
-            console.log(doc.id, '=>', doc.data());
-            console.log(id + ' - ' + firstName + ' ' + lastName);
+            let tutor = new Tutor(id, firstName, lastName,
+                            email, subjects, work_schedules);
             
+            tutors.push(tutor);
+            // console.log(doc.id, '=>', doc.data());
+            // console.log(tutor);
+            // console.log(id + ' - ' + firstName + ' ' + lastName);
+            // let tutor = 
+            // console.log(work_schedules);
+            
+            // work_schedules.forEach((el: any) => {
+                // console.log(el);
+                // if(el !== null){
+                    // console.log(el);
+                    // console.log('keys: ' + Object.keys(el));
+                    // console.log('values: ' + Object.values(el));
+                    // schedules.push(Object.values(el));
+                // }
+            // })
           });
-          
-          // WORKING ON THIS ONE
-          for(let i = 0; i < schedules.size; i++){
-              console.log('*******' + schedules[i]);
-          }
-        res.render('show-days-times');
+          res.render('show-days-times', {tutors: tutors});
+        //   console.log(schedules);
             
     })
     
@@ -106,4 +124,4 @@ app.get('/categories/manage', isAuthenticated, (_, res) => {
     
 });
 
-app.listen(8000, () => console.log('Server has started...'));
+app.listen(3000, () => console.log('Server has started...'));

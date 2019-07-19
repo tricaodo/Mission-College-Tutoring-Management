@@ -26,5 +26,9 @@
    text-align: center;
 }
 
-
+/**************** Tutor Box *******************/
+.tutor-box{
+   width: 800px;
+   margin: 5px auto;
+}
 
