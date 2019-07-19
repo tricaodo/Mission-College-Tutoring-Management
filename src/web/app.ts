@@ -71,9 +71,39 @@ app.get('/categories/booking', isAuthenticated, (_, res) => {
             // throw error;
         });
 });
+
+app.get('/categories/show-tutors-days-times', isAuthenticated, (_, res) => {
+    let schedules: any;
+    db.getInstance.getTutors()
+    .then((value: any) => {
+        value.forEach((doc:any) => {
+            const data = doc.data();
+            const id = doc.id;
+            const firstName = data['first_name'];
+            const lastName = data['last_name'];
+            schedules = data['work_schedule'];
+
+            console.log(doc.id, '=>', doc.data());
+            console.log(id + ' - ' + firstName + ' ' + lastName);
+            
+          });
+          
+          // WORKING ON THIS ONE
+          for(let i = 0; i < schedules.size; i++){
+              console.log('*******' + schedules[i]);
+          }
+        res.render('show-days-times');
+            
+    })
+    
+    .catch(error => {
+        console.log(error);
+    })
+})
 // ============== MANAGE APPOINTMENT ============== // 
 app.get('/categories/manage', isAuthenticated, (_, res) => {
-    res.render('manage')
+
+    
 });
 
-app.listen(3000, () => console.log('Server has started...'));
+app.listen(8000, () => console.log('Server has started...'));

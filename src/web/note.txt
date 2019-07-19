@@ -1,5 +1,1 @@
-- adding middleware function 
-    - redirect if user not login
-    - render if user login succefully
-    * finding way to make the code better;
-
+- WORKING ON THE MAP

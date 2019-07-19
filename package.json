@@ -5,6 +5,7 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
+    "dev": "./node_modules/nodemon/bin/nodemon.js",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "web": "npm run build && node ./dist/web/app.js"
   },

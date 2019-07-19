@@ -1,4 +1,6 @@
 import * as firebase from 'firebase';
+import { rejects } from 'assert';
+import { resolve } from 'dns';
 
 const firebaseConfig = {
     apiKey: "AIzaSyCEwH7H3TERDuRQDA_qbxLEs6VsdrfG2iM",
@@ -21,8 +23,14 @@ const tutorRef = rootRef.child('tutors');
 
 const getInstance = {
     getTutors: function () {
-        tutorRef.on('value', (snapshot) => {
-            console.log(snapshot.val());
+        return new Promise((resolves, rejects) => {
+            firestore.collection('tutors').get()
+                .then(collection => {
+                    resolves(collection);
+                })
+                .catch(error => {
+                    console.log(error);
+                })
         })
     },
 
@@ -65,14 +73,14 @@ const getInstance = {
             res.redirect('/login');
         }
     },
-    isLoggedin: function (req: any, res: any, next: any){
+    isLoggedin: function (req: any, res: any, next: any) {
         let user = auth.currentUser;
-        if(user != null){
+        if (user != null) {
             req.user = user;
             res.redirect('/categories');
-        }else{
+        } else {
             next();
         }
     }
 }
-export {getInstance};
+export { getInstance };
