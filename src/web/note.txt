@@ -1,4 +1,5 @@
-- WORKING ON THE MAP
+- added selected subject with suitable tutor
+- added view of tutor schedule
 
 { 
     '0': { from: '10:00 AM', to: '12:00 PM' },

@@ -4,8 +4,8 @@ import path = require('path');
 
 import * as db from './models/Database';
 import { Subject } from "./models/Subject";
-import {Student} from "./models/Student";
-import {Tutor} from "./models/Tutor";
+import { Student } from "./models/Student";
+import { Tutor } from "./models/Tutor";
 
 const app: express.Application = express();
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -30,7 +30,7 @@ app.get('/login', isLoggedin, (_, res) => {
     res.render('login', { errorMessage: errorMessage });
 });
 
-app.post('/login' , (req, res) => {
+app.post('/login', (req, res) => {
     let name = req.body.emailInput;
     let password = req.body.passwordInput;
     db.getInstance.login(name, password)
@@ -42,7 +42,7 @@ app.post('/login' , (req, res) => {
         })
         .catch((error: any) => {
             errorMessage = error;
-            res.render('login', {errorMessage: errorMessage});
+            res.render('login', { errorMessage: errorMessage });
         });
 });
 
@@ -52,7 +52,7 @@ app.get('/forget', isLoggedin, (_, res) => {
 });
 
 // ============== SELECT CATEGORIES AFTER LOGIN ============== // 
-app.get('/categories', isAuthenticated,  (_, res) => {
+app.get('/categories', isAuthenticated, (_, res) => {
     res.render('category')
 });
 
@@ -73,55 +73,44 @@ app.get('/categories/booking', isAuthenticated, (_, res) => {
         });
 });
 
-app.get('/categories/show-tutors-days-times', isAuthenticated, (_, res) => {
-    
+app.get('/categories/show-tutors-days-times', isAuthenticated, (req, res) => {
+    // will check whether the tutor is having this subject
+    let selectedSubject = req.query.subject;
+
+    // console.log(req.query);
     let tutors: Tutor[] = [];
 
-    let schedules = new Array();
     db.getInstance.getTutors()
-    .then((value: any) => {
-        value.forEach((doc:any) => {
-            const data = doc.data();
-            const id = doc.id;
-            const firstName = data['first_name'];
-            const lastName = data['last_name'];
-            const email = data['email'];
-            const subjects: any[] = data['subjects'];
-            const work_schedules = data['work_schedule'];
+        .then((value: any) => {
+            value.forEach((doc: any) => {
+                const data = doc.data();
+                const subjects: any[] = data['subjects'];
+                for (let i = 0; i < subjects.length; i++) {
+                    if (subjects[i] === selectedSubject) {
+                        const id = doc.id;
+                        const firstName = data['first_name'];
+                        const lastName = data['last_name'];
+                        const email = data['email'];
+                        const work_schedules = data['work_schedule'];
 
-            let tutor = new Tutor(id, firstName, lastName,
+                        let tutor = new Tutor(id, firstName, lastName,
                             email, subjects, work_schedules);
-            
-            tutors.push(tutor);
-            // console.log(doc.id, '=>', doc.data());
-            // console.log(tutor);
-            // console.log(id + ' - ' + firstName + ' ' + lastName);
-            // let tutor = 
-            // console.log(work_schedules);
-            
-            // work_schedules.forEach((el: any) => {
-                // console.log(el);
-                // if(el !== null){
-                    // console.log(el);
-                    // console.log('keys: ' + Object.keys(el));
-                    // console.log('values: ' + Object.values(el));
-                    // schedules.push(Object.values(el));
-                // }
-            // })
-          });
-          res.render('show-days-times', {tutors: tutors});
-        //   console.log(schedules);
-            
-    })
-    
-    .catch(error => {
-        console.log(error);
-    })
+                        tutors.push(tutor);
+                    }
+                }
+            });
+            res.render('show-days-times', { tutors: tutors });
+
+        })
+
+        .catch(error => {
+            console.log(error);
+        })
 })
 // ============== MANAGE APPOINTMENT ============== // 
 app.get('/categories/manage', isAuthenticated, (_, res) => {
 
-    
+
 });
 
 app.listen(3000, () => console.log('Server has started...'));

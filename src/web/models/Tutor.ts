@@ -4,5 +4,5 @@ export class Tutor {
                 public lastName: string,
                 public email: string,
                 public subjects: string[],
-                public work_schedules: []) { }
+                public work_schedules: {from: string, to: string}[]) { }
 }

@@ -2,35 +2,33 @@
 <h2 class="title-box-form">Select Subject & Activity</h2>
 <div class="container">
     <div class="box-form">
-        <form action="/categories/show-tutors-days-times">
-            <select class="form-control">
+        <form method="GET" action="/categories/show-tutors-days-times">
+            <select class="form-control" name="subject">
 
                 <% subject.forEach(el => { %>
-                <option id="<%= el.id %>"><%= el.title %></option>
+                <option id="<%= el.label %>" value="<%= el.id %>"><%= el.title %></option>
                 <% }); %>
 
             </select>
             <div class="radio">
                 <label>
-                    <input type="radio" name="singleday" value="option1" checked>
+                    <input type="radio" name="option" value="singleday" checked>
                     <strong>Single-day View (All Tutors)</strong>
                 </label>
                 <label>
-                    <input type="radio" name="multipleday" value="option2">
+                    <input type="radio" name="option" value="multiday">
                     <strong>Multi-day View (Single Tutor)</strong>
                 </label>
             </div>
             <div class="form-group btn-margin" style="margin-bottom:8px">
-                <button class="btn btn-primary form-control">Next</button>
-                
+                <input class="btn btn-primary form-control" type="submit" value="Next">
             </div>
-            <a href="/categories" class="btn btn-primary form-control" >Back</a>    
+            <a href="/categories" class="btn btn-primary form-control">Back</a>
             <div class="form-group">
-                
-            </div>
-    </div>
-    </form>
 
+            </div>
+        </form>
+    </div>
 </div>
-</div>
+
 <% include bottom/footer %>

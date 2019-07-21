@@ -4,20 +4,29 @@
     <% tutors.forEach(el => { %>
         <% let data = JSON.stringify(el).replace('Tutor', '') %>
         <% data = JSON.parse(data) %>
-        <% let times = data.work_schedules; console.log(data) %>
+        <% let times = data.work_schedules %>
         
         <div class="panel panel-info">
             <div class="panel-heading">
                 <h3 class="panel-title"><%= data.firstName  %> <%= data.lastName %></h3>
             </div>
             <div class="panel-body">
+                <% for(let i = 0; i < times.length; i++) {%>
+                    <% if(times[i] !== null){ %>
+                        <% let fromObj = times[i]['0']['from']['time'] %>
+                        <% console.log(fromObj) %>
+                        <button class="btn btn-xs btn-primary"  onclick="test(0)"><%= fromObj %></button>
+                    <% } %>
+                <% } %>
+              
               
             </div>
         </div>
-    
-
-
     <% }); %>
 </div>
-
+<script>
+    function test(id){
+        console.log(id);
+    }
+</script>
 <% include bottom/footer %>
