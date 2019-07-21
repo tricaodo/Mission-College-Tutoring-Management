@@ -75,9 +75,9 @@ app.get('/categories/booking', isAuthenticated, (_, res) => {
 
 app.get('/categories/show-tutors-days-times', isAuthenticated, (req, res) => {
     // will check whether the tutor is having this subject
-    let selectedSubject = req.query.subject;
-
-    // console.log(req.query);
+    let subjectObj = JSON.parse(req.query.subject);
+    let selectedSubjectID = subjectObj.id;
+    let selectedSubject = subjectObj.subject;
     let tutors: Tutor[] = [];
 
     db.getInstance.getTutors()
@@ -86,7 +86,7 @@ app.get('/categories/show-tutors-days-times', isAuthenticated, (req, res) => {
                 const data = doc.data();
                 const subjects: any[] = data['subjects'];
                 for (let i = 0; i < subjects.length; i++) {
-                    if (subjects[i] === selectedSubject) {
+                    if (subjects[i] === selectedSubjectID) {
                         const id = doc.id;
                         const firstName = data['first_name'];
                         const lastName = data['last_name'];
@@ -99,7 +99,7 @@ app.get('/categories/show-tutors-days-times', isAuthenticated, (req, res) => {
                     }
                 }
             });
-            res.render('show-days-times', { tutors: tutors });
+            res.render('show-days-times', { tutors: tutors, selectedSubject: selectedSubject });
 
         })
 

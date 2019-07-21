@@ -6,7 +6,9 @@
             <select class="form-control" name="subject">
 
                 <% subject.forEach(el => { %>
-                <option id="<%= el.label %>" value="<%= el.id %>"><%= el.title %></option>
+                <option id="<%= el.label %>" value='{"id": "<%= el.id %>", "subject": "<%= el.title %>"}'>
+                    <%= el.title %>
+                </option>
                 <% }); %>
 
             </select>

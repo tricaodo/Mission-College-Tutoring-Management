@@ -1,5 +1,7 @@
 - added selected subject with suitable tutor
 - added view of tutor schedule
+- modified the json when passing data from booking to show-dates-times
+- added jquery and confirmation box to show-dates-views
 
 { 
     '0': { from: '10:00 AM', to: '12:00 PM' },
