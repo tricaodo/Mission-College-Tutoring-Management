@@ -2,7 +2,17 @@
 <h2 class="title-box-form">Select Subject & Activity</h2>
 <div class="container">
     <div class="box-form">
+
         <form method="GET" action="/categories/show-tutors-days-times">
+            <div class="form-group required">
+                <div class="input-group datepick">
+                    <input type="text" class="form-control" name="frmSaveOffice_startdt" id="frmSaveOffice_startdt"
+                        required readonly>
+                    <div class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </div>
+                </div>
+            </div>
             <select class="form-control" name="subject">
 
                 <% subject.forEach(el => { %>
@@ -10,7 +20,7 @@
                     <%= el.title %>
                 </option>
                 <% }); %>
-
+                <% console.log(a)%>
             </select>
             <div class="radio">
                 <label>
@@ -32,5 +42,59 @@
         </form>
     </div>
 </div>
+
+
+
+<!-- Date picker -->
+<script>
+    // format datedate picker 
+    
+    $(document).ready(function () {
+        var date = new Date();
+        var tomorrow = new Date(date.getFullYear(), date.getMonth(), (date.getDate() + 1));
+        let formatedDate = '';
+        $('.datepick').datetimepicker({
+            format: "dddd MM/DD/YYYY",
+            ignoreReadonly: true,
+            minDate: tomorrow,
+            disabledDates: [date]
+        });
+
+        var weekday = new Array(7);
+        weekday[0] = "Sun";
+        weekday[1] = "Mon";
+        weekday[2] = "Tue";
+        weekday[3] = "Wed";
+        weekday[4] = "Thu";
+        weekday[5] = "Fri";
+        weekday[6] = "Sat";
+
+        // default date when user not select date
+        let d = new Date();
+        let defaultdate = d.getDate() + 1;
+        let defaultdayOfWeek = weekday[d.getDay() + 1];
+        let defaultmonth = d.getMonth() + 1;
+        let defaultyear = d.getFullYear();
+
+        formatedDate = defaultdayOfWeek + ' ' + defaultmonth + '/' + defaultdate + '/' + defaultyear;
+
+        // when user pick the date
+        $('.datepick').on('dp.change', (ev) => {
+            var pickdate = $('.datepick').data('DateTimePicker').date()['_d'];
+            var d = new Date(pickdate);
+            defaultdate = d.getDate();
+            defaultdayOfWeek = weekday[d.getDay()];
+            defaultmonth = d.getMonth();
+            defaultyear = d.getFullYear();
+            formatedDate = defaultdayOfWeek + ' ' + defaultmonth + '/' + defaultdate + '/' + defaultyear;
+            a = 'hello';
+        })
+    });
+</script>
+
+
+
+
+
 
 <% include bottom/footer %>

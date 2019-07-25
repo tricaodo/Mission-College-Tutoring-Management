@@ -92,15 +92,13 @@ app.get('/categories/show-tutors-days-times', isAuthenticated, (req, res) => {
                         const lastName = data['last_name'];
                         const email = data['email'];
                         const work_schedules = data['work_schedule'];
-
                         let tutor = new Tutor(id, firstName, lastName,
                             email, subjects, work_schedules);
                         tutors.push(tutor);
                     }
                 }
             });
-            res.render('show-days-times', { tutors: tutors, selectedSubject: selectedSubject });
-
+            res.render('show-days-times', {tutors: tutors, selectedSubject: selectedSubject });
         })
 
         .catch(error => {

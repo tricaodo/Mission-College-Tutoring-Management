@@ -1,40 +1,18 @@
 <% include top/header %>
-
-<div class="tutor-box">
-
-  <div class="form-group required" style="width: 50%">
-    <div class="input-group datepick">
-      <input type="text" class="form-control" name="frmSaveOffice_startdt" id="frmSaveOffice_startdt" required readonly>
-      <div class="input-group-addon">
-        <span class="glyphicon glyphicon-calendar"></span>
-      </div>
-    </div>
-  </div>
-
-  <% tutors.forEach(el => { %>
-  <% let data = JSON.stringify(el).replace('Tutor', '') %>
-  <% data = JSON.parse(data) %>
-  <% let times = data.work_schedules %>
+<div class="tutor-box" data-test-value="<%= tutors %>">
 
   <div class="panel panel-info">
     <div class="panel-heading">
-      <h3 class="panel-title"><%= data.firstName  %> <%= data.lastName %></h3>
+      <h3 class="panel-title"></h3>
     </div>
     <div class="panel-body">
-      <% for(let i = 0; i < times.length; i++) {%>
-      <% if(times[i] !== null){ %>
-      <% let fromObj = times[i]['0']['from']['time'] %>
-      <% console.log(fromObj) %>
+
       <!-- time button  -->
-      <a href="#myModal" class="btn btn-xs btn-primary" data-toggle="modal" data-target="#myModal"
-        data-subject="<%= selectedSubject %>" data-tutor="<%= data.firstName %> <%= data.lastName %>" data-date=""
-        data-start="" data-end=""><%= fromObj %></a>
-      <% } %>
-      <% } %>
+      <a href="#myModal" class="btn btn-xs btn-primary" data-toggle="modal" data-target="#myModal" data-subject=""
+        data-tutor="" data-date="" data-start="" data-end=""></a>
 
     </div>
   </div>
-  <% }); %>
 </div>
 
 <!-- Confirmation box -->
@@ -63,51 +41,8 @@
 </div>
 
 
-<!-- Date picker -->
 <script>
-  // format datedate picker 
   $(document).ready(function () {
-    var date = new Date();
-    var tomorrow = new Date(date.getFullYear(), date.getMonth(), (date.getDate() + 1));
-    let formatedDate = '';
-    $('.datepick').datetimepicker({
-      format: "dddd MM/DD/YYYY",
-      ignoreReadonly: true,
-      minDate: tomorrow,
-      disabledDates: [date]
-    });
-
-    var weekday = new Array(7);
-    weekday[0] = "Sun";
-    weekday[1] = "Mon";
-    weekday[2] = "Tue";
-    weekday[3] = "Wed";
-    weekday[4] = "Thu";
-    weekday[5] = "Fri";
-    weekday[6] = "Sat";
-
-    // default date when user not select date
-    let d = new Date();
-    let defaultdate = d.getDate();
-    let defaultdayOfWeek = weekday[d.getDay()];
-    let defaultmonth = d.getMonth();
-    let defaultyear = d.getFullYear();
-    
-    formatedDate = defaultdayOfWeek + ' ' + defaultmonth + '/' + defaultdate + '/' + defaultyear;
-
-    
-
-    // when user pick the date
-    $('.datepick').on('dp.change', (ev) => {
-      var pickdate = $('.datepick').data('DateTimePicker').date()['_d'];
-      var d = new Date(pickdate);
-      defaultdate = d.getDate();
-      defaultdayOfWeek = weekday[d.getDay()];
-      defaultmonth = d.getMonth();
-      defaultyear = d.getFullYear();
-      formatedDate = defaultdayOfWeek + ' ' + defaultmonth + '/' + defaultdate + '/' + defaultyear;
-    })
-
     // show the form of modal
     $(function () {
       $('#myModal').on('show.bs.modal', function (event) {
@@ -126,10 +61,5 @@
   });
 
 </script>
-
-
-
-
-
 
 <% include bottom/footer %>
