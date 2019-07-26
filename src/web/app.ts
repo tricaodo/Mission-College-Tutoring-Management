@@ -97,14 +97,13 @@ app.post('/categories/show-tutors-days-times', isAuthenticated, (req, res) => {
     //             const appt = new Appointment(id, appointment);
     //             appts.push(appt);
     //         })
-            
+
     //     })
-    
+
     let getStuff = db.getInstance.getTutorAppts()
-    .then((snapshot: any) => {
-        return snapshot;
-        
-    })
+        .then((snapshot: any) => {
+            return snapshot;
+        })
 
     let tutors: Tutor[] = [];
     db.getInstance.getTutors()
@@ -125,28 +124,40 @@ app.post('/categories/show-tutors-days-times', isAuthenticated, (req, res) => {
                         let tutor = new Tutor(id, firstName, lastName,
                             email, subjects, work_schedules);
                         tutors.push(tutor);
-                        getStuff.then((stuff) => {
-                            //WORKING ON THIS ONE
-                            // stuff.forEach((data: any) => {
-                            //                 let stuffID = data.key;
-                            //                 let appointment = data.val().appointments;
-                            //                 if(id != stuffID){
+                        // getStuff.then((stuff) => {
+                        // //WORKING ON THIS ONE
+                        // stuff.forEach((data: any) => {
+                        //     let stuffID = data.key;
+                        //     let appointment = data.val().appointments;
+                        //     if (id != stuffID) {
 
-                            //                 }
-                            //                 const appt = new Appointment(stuffID, appointment);
-                            //                 appts.push(appt);
-                            //                 console.log(appts)
-                            //             })
-                        })
+                        //     }
+                        //     const appt = new Appointment(stuffID, appointment);
+                        //     appts.push(appt);
+                        //     console.log(appts)
+                        // })
+                        // })
                     }
+
                 }
             });
+            // WOKRING on this one
+            getStuff.then((stuff) => {
+                console.log('Stuff: ' + stuff.val());
+                stuff.forEach((data: any) => {
+                    let stuffID = data.key;
+                    let appointment = data.val().appointments;
+                    
+                    const appt = new Appointment(stuffID, appointment);
+                    appts.push(appt);
+                })
+                res.render('show-days-times', {
+                    tutors: tutors,
+                    selectedSubject: selectedSubject,
+                    selectedDate: selectedDate
+                });
 
-            res.render('show-days-times', {
-                tutors: tutors,
-                selectedSubject: selectedSubject,
-                selectedDate: selectedDate
-            });
+            })
         })
 
         .catch(error => {
