@@ -6,6 +6,7 @@ import * as db from './models/Database';
 import { Subject } from "./models/Subject";
 import { Student } from "./models/Student";
 import { Tutor } from "./models/Tutor";
+import { Appointment } from "./models/Appointment";
 
 const app: express.Application = express();
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -73,19 +74,48 @@ app.get('/categories/booking', isAuthenticated, (_, res) => {
         });
 });
 
-app.get('/categories/show-tutors-days-times', isAuthenticated, (req, res) => {
+app.post('/categories/show-tutors-days-times', isAuthenticated, (req, res) => {
     // will check whether the tutor is having this subject
-    let subjectObj = JSON.parse(req.query.subject);
+    // console.log(req.body);
+    let subjectObj = JSON.parse(req.body.subject);
+    let selectedDate = subjectObj.datepick;
     let selectedSubjectID = subjectObj.id;
     let selectedSubject = subjectObj.subject;
-    let tutors: Tutor[] = [];
 
+    // retrieve all tutors from db to get their schedules and the subject they are working on
+    // retrieve all the appointment 
+    // compare the tutor schedule with the appointment
+    // if they 
+    // console.log(selectedSubjectID);
+
+    let appts: Appointment[] = [];
+    // db.getInstance.getTutorAppts()
+    //     .then((snapshot: any) => {
+    //         snapshot.forEach((data: any) => {
+    //             let id = data.key;
+    //             let appointment = data.val().appointments;
+    //             const appt = new Appointment(id, appointment);
+    //             appts.push(appt);
+    //         })
+            
+    //     })
+    
+    let getStuff = db.getInstance.getTutorAppts()
+    .then((snapshot: any) => {
+        return snapshot;
+        
+    })
+
+    let tutors: Tutor[] = [];
     db.getInstance.getTutors()
         .then((value: any) => {
             value.forEach((doc: any) => {
-                const data = doc.data();
+
+                let data = doc.data();
                 const subjects: any[] = data['subjects'];
+
                 for (let i = 0; i < subjects.length; i++) {
+
                     if (subjects[i] === selectedSubjectID) {
                         const id = doc.id;
                         const firstName = data['first_name'];
@@ -95,10 +125,28 @@ app.get('/categories/show-tutors-days-times', isAuthenticated, (req, res) => {
                         let tutor = new Tutor(id, firstName, lastName,
                             email, subjects, work_schedules);
                         tutors.push(tutor);
+                        getStuff.then((stuff) => {
+                            //WORKING ON THIS ONE
+                            // stuff.forEach((data: any) => {
+                            //                 let stuffID = data.key;
+                            //                 let appointment = data.val().appointments;
+                            //                 if(id != stuffID){
+
+                            //                 }
+                            //                 const appt = new Appointment(stuffID, appointment);
+                            //                 appts.push(appt);
+                            //                 console.log(appts)
+                            //             })
+                        })
                     }
                 }
             });
-            res.render('show-days-times', {tutors: tutors, selectedSubject: selectedSubject });
+
+            res.render('show-days-times', {
+                tutors: tutors,
+                selectedSubject: selectedSubject,
+                selectedDate: selectedDate
+            });
         })
 
         .catch(error => {

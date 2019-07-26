@@ -3,10 +3,10 @@
 <div class="container">
     <div class="box-form">
 
-        <form method="GET" action="/categories/show-tutors-days-times">
+        <form method="POST" action="/categories/show-tutors-days-times">
             <div class="form-group required">
                 <div class="input-group datepick">
-                    <input type="text" class="form-control" name="frmSaveOffice_startdt" id="frmSaveOffice_startdt"
+                    <input type="text" class="form-control" name="datepick" id="frmSaveOffice_startdt"
                         required readonly>
                     <div class="input-group-addon">
                         <span class="glyphicon glyphicon-calendar"></span>
@@ -20,7 +20,6 @@
                     <%= el.title %>
                 </option>
                 <% }); %>
-                <% console.log(a)%>
             </select>
             <div class="radio">
                 <label>
@@ -87,7 +86,6 @@
             defaultmonth = d.getMonth();
             defaultyear = d.getFullYear();
             formatedDate = defaultdayOfWeek + ' ' + defaultmonth + '/' + defaultdate + '/' + defaultyear;
-            a = 'hello';
         })
     });
 </script>

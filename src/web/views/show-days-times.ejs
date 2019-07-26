@@ -1,18 +1,27 @@
 <% include top/header %>
-<div class="tutor-box" data-test-value="<%= tutors %>">
+<div class="tutor-box">
+
+  <% tutors.forEach(el => { %>
+  <% let data = JSON.stringify(el).replace('Tutor', '') %>
+  <% data = JSON.parse(data) %>
+  <% let times = data.work_schedules %>
 
   <div class="panel panel-info">
     <div class="panel-heading">
-      <h3 class="panel-title"></h3>
+      <h3 class="panel-title"><%= data.firstName  %> <%= data.lastName %></h3>
     </div>
     <div class="panel-body">
-
+      <% for(let i = 0; i < times.length; i++) {%>
+      <% if(times[i] !== null){ %>
+      <% let fromObj = times[i]['0']['from']['time'] %>
       <!-- time button  -->
-      <a href="#myModal" class="btn btn-xs btn-primary" data-toggle="modal" data-target="#myModal" data-subject=""
-        data-tutor="" data-date="" data-start="" data-end=""></a>
-
+      <a href="#myModal" class="btn btn-xs btn-primary <% if(selectedDate === ) %>" data-toggle="modal" data-target="#myModal" data-subject=""
+        data-tutor="" d ata-date="" data-start="" data-end="" ><%= fromObj %></a>
+      <% } %>
+      <% } %>
     </div>
   </div>
+  <% }); %>
 </div>
 
 <!-- Confirmation box -->
