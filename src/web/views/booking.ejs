@@ -4,6 +4,7 @@
     <div class="box-form">
 
         <form method="POST" action="/categories/show-tutors-days-times">
+            <!-- date picker -->
             <div class="form-group required">
                 <div class="input-group datepick">
                     <input type="text" class="form-control" name="datepick" id="frmSaveOffice_startdt"
@@ -13,14 +14,15 @@
                     </div>
                 </div>
             </div>
-            <select class="form-control" name="subject">
-
+            <!-- dropdown menu -->
+            <select class="form-control" name="dropdownSubject">
                 <% subject.forEach(el => { %>
                 <option id="<%= el.label %>" value='{"id": "<%= el.id %>", "subject": "<%= el.title %>"}'>
                     <%= el.title %>
                 </option>
                 <% }); %>
             </select>
+            <!-- single day or multiple days -->
             <div class="radio">
                 <label>
                     <input type="radio" name="option" value="singleday" checked>
@@ -79,8 +81,8 @@
 
         // when user pick the date
         $('.datepick').on('dp.change', (ev) => {
-            var pickdate = $('.datepick').data('DateTimePicker').date()['_d'];
-            var d = new Date(pickdate);
+            let unformatDate = $('.datepick').data('DateTimePicker').date()['_d'];
+            let d = new Date(unformatDate);
             defaultdate = d.getDate();
             defaultdayOfWeek = weekday[d.getDay()];
             defaultmonth = d.getMonth();

@@ -1,6 +1,24 @@
 - changed datepicker to booking view
 - working on how to pass data from booking to show-days.times.ejs
 
+
+
+
+{
+    "datepick":"Friday 08/02/2019",
+    "subject":
+        "{
+            \"id\": \"2tzMJcet54DRVmzSeX8l\",
+            \"subject\": \"Introduction to Java\"}",
+            "option":"singleday"
+        }"
+
+
+
+
+
+
+
 <% include top/header %>
 <div class="tutor-box">
   <div class="form-group required" style="width: 50%">

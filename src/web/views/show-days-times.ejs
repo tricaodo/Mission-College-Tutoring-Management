@@ -11,12 +11,13 @@
       <h3 class="panel-title"><%= data.firstName  %> <%= data.lastName %></h3>
     </div>
     <div class="panel-body">
+      <% console.log(selectedSubject, selectedDate) %>
       <% for(let i = 0; i < times.length; i++) {%>
       <% if(times[i] !== null){ %>
       <% let fromObj = times[i]['0']['from']['time'] %>
       <!-- time button  -->
       <a href="#myModal" class="btn btn-xs btn-primary" data-toggle="modal" data-target="#myModal" data-subject=""
-        data-tutor="" d ata-date="" data-start="" data-end="" ><%= fromObj %></a>
+        data-tutor="" data-date="" data-start="" data-end="" ><%= fromObj %></a>
       <% } %>
       <% } %>
     </div>
