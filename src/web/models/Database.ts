@@ -1,7 +1,4 @@
 import * as firebase from 'firebase';
-import { rejects } from 'assert';
-import { resolve } from 'dns';
-import { promises } from 'fs';
 
 const firebaseConfig = {
     apiKey: "AIzaSyCEwH7H3TERDuRQDA_qbxLEs6VsdrfG2iM",

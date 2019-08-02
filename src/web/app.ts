@@ -81,6 +81,10 @@ app.post('/categories/show-tutors-days-times', isAuthenticated, (req, res) => {
     let selectedSubjectID = subjectObj.id;
     let selectedSubject = subjectObj.subject;
 
+    let unformattedDate = new Date(selectedDate);
+    let indexOfDay = unformattedDate.getDay(); // get the index of day  -> ex: arr[0] = sunday
+
+
     let tutors: Tutor[] = [];
     db.getInstance.getTutors()
         .then((value: any) => {
@@ -88,18 +92,20 @@ app.post('/categories/show-tutors-days-times', isAuthenticated, (req, res) => {
 
                 let data = doc.data();
                 const subjects: any[] = data['subjects'];
-
                 for (let i = 0; i < subjects.length; i++) {
 
+                    // filter the subject which student already chose
                     if (subjects[i] === selectedSubjectID) {
-                        const id = doc.id;
-                        const firstName = data['first_name'];
-                        const lastName = data['last_name'];
-                        const email = data['email'];
-                        const work_schedules = data['work_schedule'];
-                        let tutor = new Tutor(id, firstName, lastName,
-                            email, subjects, work_schedules);
-                        tutors.push(tutor);
+                        const work_schedules = data['work_schedule'][indexOfDay];
+                        if(work_schedules != null){
+                            const id = doc.id;
+                            const firstName = data['first_name'];
+                            const lastName = data['last_name'];
+                            const email = data['email'];
+                            let tutor = new Tutor(id, firstName, lastName,
+                                email, subjects, work_schedules);
+                            tutors.push(tutor);
+                        }
                     }
 
                 }

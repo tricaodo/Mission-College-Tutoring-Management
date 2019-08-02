@@ -3,15 +3,18 @@
 
 
 
-
 {
-    "datepick":"Friday 08/02/2019",
-    "subject":
-        "{
-            \"id\": \"2tzMJcet54DRVmzSeX8l\",
-            \"subject\": \"Introduction to Java\"}",
-            "option":"singleday"
-        }"
+    "active":true,
+    "appointments":[],
+    "email":"tintheanh@gmail.com",
+    "first_name":"Anh",
+    "is_admin":true,
+    "last_name":"Nguyen",
+    "off_time":[],
+    "staff_id":"000001121",
+    "subjects":["2tzMJcet54DRVmzSeX8l"],
+    "work_schedule":[{"0":{"from":{"order":7,"time":"10:30 AM"},"to":{"order":8,"time":"11:00 AM"}}},{"0":{"from":{"order":3,"time":"08:30 AM"},"to":{"order":4,"time":"09:00 AM"}}},null,null,{"0":{"from":{"order":10,"time":"12:00 PM"},"to":{"order":11,"time":"12:30 PM"}}},null,null]}
+
 
 
 
@@ -275,3 +278,83 @@
 
 <% include bottom/footer %>
 ==================== end booking ========================
+
+
+
+============== show-days-times ================
+<% include top/header %>
+<div class="tutor-box">
+
+  <% tutors.forEach(el => { %>
+  <% let data = JSON.stringify(el).replace('Tutor', '') %>
+  <% data = JSON.parse(data) %>
+  <% let times = data.work_schedules %>
+
+  <div class="panel panel-info">
+    <div class="panel-heading">
+      <h3 class="panel-title"><%= data.firstName  %> <%= data.lastName %></h3>
+    </div>
+    <div class="panel-body">
+      <% for(let i = 0; i < times.length; i++) {%>
+      <% if(times[i] !== null){ %>
+      <% let fromObj = times[i]['0']['from']['time'] %>
+      <!-- time button  -->
+      <a href="#myModal" class="btn btn-xs btn-primary" data-toggle="modal" data-target="#myModal" data-subject=""
+        data-tutor="" data-date="" data-start="" data-end="" ><%= fromObj %></a>
+      <% } %>
+      <% } %>
+    </div>
+  </div>
+  <% }); %>
+</div>
+
+<!-- Confirmation box -->
+<div class="modal fade bs-example-modal-xs" tabindex="-1" id="myModal">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+            aria-hidden="true">×</span></button>
+        <h4 class="modal-title" id="mySmallModalLabel">Codes &amp; Company</h4>
+      </div>
+      <div class="modal-body">
+        <label>Subject: </label> <span id="subject"> </span><br>
+        <label>Tutor: </label> <span id="tutor"> </span><br>
+        <label>Date: </label><span id="date"> Thu Mar 15, 2019</span> <br>
+        <label>Start: </label><span id="start"> 3:00 PM</span> <br>
+        <label>End: </label><span id="end"> 3:30 PM</span> <br>
+        <label>Notes: </label><br>
+        <textarea name="" id="" cols="30" rows="5"></textarea>
+        <hr>
+        <input type="text" id="code" readonly />
+        <input type="text" id="company" readonly />
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  $(document).ready(function () {
+    // show the form of modal
+    $(function () {
+      $('#myModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Button that triggered the modal
+        var tutor = button.data('tutor');
+        // Extract info from data-* attributes
+        var subject = button.data('subject'); // Extract info from data-* attributes
+        // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+        // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+        var modal = $(this);
+        modal.find('#subject').text(subject);
+        modal.find('#tutor').text(tutor);
+        $('#date').text(' ' + formatedDate);
+      });
+    });
+  });
+
+</script>
+
+<% include bottom/footer %>
+
+============== end show-days-times ================

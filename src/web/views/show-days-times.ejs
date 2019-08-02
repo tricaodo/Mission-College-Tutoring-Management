@@ -1,74 +1,89 @@
 <% include top/header %>
 <div class="tutor-box">
 
-  <% tutors.forEach(el => { %>
-  <% let data = JSON.stringify(el).replace('Tutor', '') %>
-  <% data = JSON.parse(data) %>
-  <% let times = data.work_schedules %>
-
-  <div class="panel panel-info">
-    <div class="panel-heading">
-      <h3 class="panel-title"><%= data.firstName  %> <%= data.lastName %></h3>
-    </div>
-    <div class="panel-body">
-      <% console.log(selectedSubject, selectedDate) %>
-      <% for(let i = 0; i < times.length; i++) {%>
-      <% if(times[i] !== null){ %>
-      <% let fromObj = times[i]['0']['from']['time'] %>
-      <!-- time button  -->
-      <a href="#myModal" class="btn btn-xs btn-primary" data-toggle="modal" data-target="#myModal" data-subject=""
-        data-tutor="" data-date="" data-start="" data-end="" ><%= fromObj %></a>
-      <% } %>
-      <% } %>
-    </div>
-  </div>
-  <% }); %>
+    <% if(tutors.length < 1){ %>
+        <h1>No schedule is available!</h1>
+    <% } else { %>
+        <% tutors.forEach(el => { %>
+            <% let data = JSON.stringify(el).replace('Tutor', '') %>
+            <% data = JSON.parse(data) %>
+            <% let timesObj = data.work_schedules %>
+            <!-- convert object to array (working time)-->
+            <% var timesArr = Object.keys(timesObj).map(function(key) { %>
+                <% return timesObj[key]; %>
+            <% }); %>
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><%= data.firstName %> <%= data.lastName %></h3>
+                </div>
+                <div class="panel-body">
+                    <!-- time button  -->
+                    <% for(let i = 0; i < timesArr.length; i++) {%>
+                    <a href="#myModal" class="btn btn-xs btn-primary" data-toggle="modal" data-target="#myModal"
+                       data-subject="<%= selectedSubject %>"
+                       data-tutor="<%= data.firstName %> <%= data.lastName %>"
+                       data-date="<%= selectedDate %>"
+                       data-startTime="<%= timesArr[i]['from']['time']; %>" <%console.log(timesArr[i]['from']['time'])%>>
+                       data-endTime="<%= timesArr[i]['to']['time']; %>"> <%= timesArr[i]['from']['time']; %>
+                    </a>
+                    <%}%>
+                </div>
+            </div>
+        <% }); %>
+    <% } %>
 </div>
 
 <!-- Confirmation box -->
 <div class="modal fade bs-example-modal-xs" tabindex="-1" id="myModal">
-  <div class="modal-dialog modal-sm">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-            aria-hidden="true">×</span></button>
-        <h4 class="modal-title" id="mySmallModalLabel">Codes &amp; Company</h4>
-      </div>
-      <div class="modal-body">
-        <label>Subject: </label> <span id="subject"> </span><br>
-        <label>Tutor: </label> <span id="tutor"> </span><br>
-        <label>Date: </label><span id="date"> Thu Mar 15, 2019</span> <br>
-        <label>Start: </label><span id="start"> 3:00 PM</span> <br>
-        <label>End: </label><span id="end"> 3:30 PM</span> <br>
-        <label>Notes: </label><br>
-        <textarea name="" id="" cols="30" rows="5"></textarea>
-        <hr>
-        <input type="text" id="code" readonly />
-        <input type="text" id="company" readonly />
-      </div>
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">×</span></button>
+                <h4 class="modal-title" id="mySmallModalLabel">Codes &amp; Company</h4>
+            </div>
+            <div class="modal-body">
+                <label>Subject: </label> <span id="subject"> </span><br>
+                <label>Tutor: </label> <span id="tutor"> </span><br>
+                <label>Date: </label><span id="date"> </span> <br>
+                <label>Start: </label><span id="start"> </span> <br>
+                <label>End: </label><span id="end"> </span> <br>
+                <label>Notes: </label><br>
+                <textarea name="" id="" cols="30" rows="5"></textarea>
+                <hr>
+                <input type="text" id="code" readonly/>
+                <input type="text" id="company" readonly/>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 
 <script>
-  $(document).ready(function () {
-    // show the form of modal
-    $(function () {
-      $('#myModal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget); // Button that triggered the modal
-        var tutor = button.data('tutor');
-        // Extract info from data-* attributes
-        var subject = button.data('subject'); // Extract info from data-* attributes
-        // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
-        // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
-        var modal = $(this);
-        modal.find('#subject').text(subject);
-        modal.find('#tutor').text(tutor);
-        $('#date').text(' ' + formatedDate);
-      });
+    $(document).ready(function () {
+        // show the form of modal
+        $(function () {
+            $('#myModal').on('show.bs.modal', function (event) {
+                let button = $(event.relatedTarget); // Button that triggered the modal
+                let tutor = button.data('tutor');
+                let subject = button.data('subject');
+
+                let date = button.data('date'); // Extract info from data-* attributes
+                let start = button.data('startTime'); // Extract info from data-* attributes
+                let end = button.data('endTime'); // Extract info from data-* attributes
+
+                // Extract info from data-* attributes
+                // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+                // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+                let modal = $(this);
+                modal.find('#subject').text(subject);
+                modal.find('#tutor').text(tutor);
+                modal.find('#date').text(date);
+                modal.find('#start').text(start);
+                modal.find('#end').text(end);
+            });
+        });
     });
-  });
 
 </script>
 
