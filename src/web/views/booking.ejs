@@ -51,17 +51,17 @@
     // format datedate picker 
     
     $(document).ready(function () {
-        var date = new Date();
-        var tomorrow = new Date(date.getFullYear(), date.getMonth(), (date.getDate() + 1));
+        let date = new Date();
+        let tomorrow = new Date(date.getFullYear(), date.getMonth(), (date.getDate() + 1));
         let formatedDate = '';
         $('.datepick').datetimepicker({
-            format: "dddd MM/DD/YYYY",
+            format: "MM-DD-YYYY",
             ignoreReadonly: true,
             minDate: tomorrow,
             disabledDates: [date]
         });
 
-        var weekday = new Array(7);
+        let weekday = new Array(7);
         weekday[0] = "Sun";
         weekday[1] = "Mon";
         weekday[2] = "Tue";
@@ -81,13 +81,16 @@
 
         // when user pick the date
         $('.datepick').on('dp.change', (ev) => {
+
             let unformatDate = $('.datepick').data('DateTimePicker').date()['_d'];
             let d = new Date(unformatDate);
-            defaultdate = d.getDate();
-            defaultdayOfWeek = weekday[d.getDay()];
-            defaultmonth = d.getMonth();
-            defaultyear = d.getFullYear();
-            formatedDate = defaultdayOfWeek + ' ' + defaultmonth + '/' + defaultdate + '/' + defaultyear;
+            console.log('Test: ' + d.toUTCString());
+            // defaultdate = d.getDate();
+            // defaultdayOfWeek = weekday[d.getDay()];
+            // defaultmonth = d.getMonth();
+            // defaultyear = d.getFullYear();
+            // formatedDate = defaultdayOfWeek + ' ' + defaultmonth + '-' + defaultdate + '-' + defaultyear;
+            formatedDate = d.toUTCString();
         })
     });
 </script>

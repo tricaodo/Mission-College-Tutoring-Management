@@ -82,9 +82,29 @@ app.post('/categories/show-tutors-days-times', isAuthenticated, (req, res) => {
     let selectedSubject = subjectObj.subject;
 
     let unformattedDate = new Date(selectedDate);
+    let unixTimeStamp = Math.floor(unformattedDate.getTime()/1000); // get unix time to save when student click on confirm box
     let indexOfDay = unformattedDate.getDay(); // get the index of day  -> ex: arr[0] = sunday
 
+    // convert to readable string date for confirmation box
+    const weekday = new Array(7);
+            weekday[0] = "Sun";
+            weekday[1] = "Mon";
+            weekday[2] = "Tue";
+            weekday[3] = "Wed";
+            weekday[4] = "Thu";
+            weekday[5] = "Fri";
+            weekday[6] = "Sat";
+    let defaultdate = unformattedDate.getDate();
+    let defaultdayOfWeek = weekday[unformattedDate.getDay()];
+    let defaultmonth = unformattedDate.getMonth() + 1;
+    let defaultyear = unformattedDate.getFullYear();
+    let formatedDate = defaultdayOfWeek + ' ' + defaultmonth + '/' + defaultdate + '/' + defaultyear;
+    console.log('Formatted: ' + formatedDate);
 
+
+    console.log('Full Day: ' + unformattedDate);
+    console.log('Unix Time Stamp: ' + unixTimeStamp);
+    console.log('Index of Day: ' + indexOfDay);
     let tutors: Tutor[] = [];
     db.getInstance.getTutors()
         .then((value: any) => {
@@ -109,11 +129,12 @@ app.post('/categories/show-tutors-days-times', isAuthenticated, (req, res) => {
                     }
 
                 }
-                res.render('show-days-times', {
-                    tutors: tutors,
-                    selectedSubject: selectedSubject,
-                    selectedDate: selectedDate
-                });
+
+            });
+            res.render('show-days-times', {
+                tutors: tutors,
+                selectedSubject: selectedSubject,
+                selectedDate: selectedDate
             });
         })
 
