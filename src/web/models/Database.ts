@@ -22,6 +22,23 @@ const appointmentsRef = rootRef.child('appointments');
 
 const getInstance = {
 
+    addApptToStudent: function(studentID: string){
+        this.getSpecificStudent(studentID);
+    },
+
+    addApptToTutor: function (tutorID: string){
+
+    },
+
+    getSpecificStudent: function (studentID: string){
+        const studentRef = firestore.collection('tutor').doc(studentID);
+        studentRef.get()
+            .then(studentDoc => {
+                console.log(studentDoc);
+            })
+        // working on this one
+    },
+
     getAppts: function(){
         return new Promise((resolves, rejects) => {
             appointmentsRef.on('value', (snapshot) => {

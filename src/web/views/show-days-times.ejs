@@ -119,7 +119,7 @@
                     from: startTime,
                     to: endTime
                 },
-                tutor: tutor_id
+                tutor_id: tutor_id
             }
             console.log(allInformation);
             $.ajax({
@@ -127,8 +127,9 @@
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(allInformation),
-                success: function () {
-                    confirm('Your booking appointment is successful');
+                success: function (data) {
+                        // ....
+
                 },
                 alert: function () {
                     alert('Please try again!!!');

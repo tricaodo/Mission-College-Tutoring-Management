@@ -186,15 +186,24 @@ app.post('/confirm-appointment', isAuthenticated, (req, res) => {
     console.log('Receiving Request: ');
     console.log(req.body);
     const apptObj = req.body;
-    const appt = new Appointment(
-        apptObj.apptDate,
-        apptObj.dateCreated,
-        apptObj.student_id,
-        apptObj.subject_id,
-        apptObj.time,
-        apptObj.tutor
-    )
-    db.getInstance.addAppointment(appt);
+    const student_id = apptObj.student_id;
+    const tutor_id = apptObj.tutor_id;
+    //
+    // // add specific appointment
+    // const appt = new Appointment(
+    //     apptObj.apptDate,
+    //     apptObj.dateCreated,
+    //     apptObj.student_id,
+    //     apptObj.subject_id,
+    //     apptObj.time,
+    //     apptObj.tutor
+    // )
+    // console.log('appt: ' + appt);
+    db.getInstance.addAppointment(apptObj);
+    // add appt to specific tutor
+    // db.getInstance.addApptToTutor(tutor_id);
+    // add appt to specific student
+    db.getInstance.addApptToStudent(student_id);
 })
 
 // ============== MANAGE APPOINTMENT ============== // 
