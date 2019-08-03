@@ -119,9 +119,9 @@
                     from: startTime,
                     to: endTime
                 },
-                tutor_id: tutor_id
+                tutor_id: tutor_id,
+                status: 'pending'
             }
-            console.log(allInformation);
             $.ajax({
                 url: '/confirm-appointment',
                 type: 'POST',

@@ -84,7 +84,7 @@ app.post('/categories/show-tutors-days-times', isAuthenticated, (req, res) => {
     let selectedDate = req.body.datepick;
     let selectedSubjectID = subjectObj.id;
     let selectedSubject = subjectObj.subject;
-
+    console.log(selectedDate);
     let unformattedDate = new Date(selectedDate);
     let unixTimeStamp = Math.floor(unformattedDate.getTime()/1000); // get unix time to save when student click on confirm box
     let indexOfDay = unformattedDate.getDay(); // get the index of day  -> ex: arr[0] = sunday
@@ -183,11 +183,8 @@ app.post('/categories/show-tutors-days-times', isAuthenticated, (req, res) => {
 
 // ============== CONFIRMATION ============== //
 app.post('/confirm-appointment', isAuthenticated, (req, res) => {
-    console.log('Receiving Request: ');
-    console.log(req.body);
     const apptObj = req.body;
-    const student_id = apptObj.student_id;
-    const tutor_id = apptObj.tutor_id;
+
     //
     // // add specific appointment
     // const appt = new Appointment(
@@ -200,10 +197,7 @@ app.post('/confirm-appointment', isAuthenticated, (req, res) => {
     // )
     // console.log('appt: ' + appt);
     db.getInstance.addAppointment(apptObj);
-    // add appt to specific tutor
-    // db.getInstance.addApptToTutor(tutor_id);
-    // add appt to specific student
-    db.getInstance.addApptToStudent(student_id);
+
 })
 
 // ============== MANAGE APPOINTMENT ============== // 

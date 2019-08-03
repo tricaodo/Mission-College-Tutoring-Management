@@ -22,20 +22,31 @@ const appointmentsRef = rootRef.child('appointments');
 
 const getInstance = {
 
-    addApptToStudent: function(studentID: string){
-        this.getSpecificStudent(studentID);
-    },
-
-    addApptToTutor: function (tutorID: string){
+    // ============== ADD APPOINTMENT ============== //
+    addAppointment: function(appt: Appointment) {
+        appointmentsRef.push(appt);
 
     },
+
+    // addApptToStudent: function(studentID: string){
+    //     this.getSpecificStudent(studentID);
+    // },
+
+    // addApptToTutor: function (tutorID: string, apptID: string){
+    //     const tutorRef = firestore.collection('tutors').doc(tutorID);
+    //     tutorRef.update('appointments', firebase.firestore.FieldValue.arrayUnion(apptID))
+    //         .then(() => {
+    //             console.log('Successfully added appt to tutor array');
+    //         })
+    //         .catch(error => {
+    //             console.log('Error from addApptToTutor: ' + error);
+    //         })
+    // },
+    // ============== END ADD APPOINTMENT ============== //
+
 
     getSpecificStudent: function (studentID: string){
-        const studentRef = firestore.collection('tutor').doc(studentID);
-        studentRef.get()
-            .then(studentDoc => {
-                console.log(studentDoc);
-            })
+
         // working on this one
     },
 
@@ -90,13 +101,7 @@ const getInstance = {
         });
     },
 
-    // ============== ADD APPOINTMENT ============== //
-    addAppointment: function(appt: Appointment) {
-        console.log('From database: ' + appt);
-        appointmentsRef.push(appt, (onComplete) => {
-            console.log('Added appointment successfully');
-        });
-    },
+
 
     // ============== MIDDLEWARE FUNCTION ============== //
     isAuthenticated: function (req: any, res: any, next: any) {
