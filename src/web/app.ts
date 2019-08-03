@@ -104,8 +104,38 @@ app.post('/categories/show-tutors-days-times', isAuthenticated, (req, res) => {
     // let defaultyear = unformattedDate.getFullYear();
     // let formatedDate = defaultdayOfWeek + ' ' + defaultmonth + '/' + defaultdate + '/' + defaultyear;
 
+    let appts: Appointment[] = [];
+    // get appts
+    db.getInstance.getAppts()
+        .then((snapshot: any) => {
+            snapshot.forEach((result: any) => {
+                const key = snapshot.key;
+                const data = result.val();
+                const appt = new Appointment(
+                    data['apptDate'],
+                    data['dateCreated'],
+                    data['student'],
+                    data['subject'],
+                    data['time'],
+                    data['tutor'],
+                    key);
+                appts.push(appt);
+                console.log(appt);
+            })
+            // const keys = Object.keys(snapshot.val());
+            // const values = Object.values(snapshot.val());
+            // console.log(keys[0]);
+            // for(let i = 0; i < keys.length; i++){
+            //     console.log(values.get)
+            // }
+
+        })
+        .catch(error => {
+            console.log(error);
+        });
 
     let tutors: Tutor[] = [];
+    // get tutors
     db.getInstance.getTutors()
         .then((value: any) => {
             value.forEach((doc: any) => {
@@ -135,11 +165,6 @@ app.post('/categories/show-tutors-days-times', isAuthenticated, (req, res) => {
                 }
 
             });
-            console.log('Tutors: ' + tutors);
-            console.log('Subject: ' + selectedSubject);
-            console.log('Date: ' + selectedDate)
-            console.log('SubjectID: ' + selectedSubjectID);
-            console.log('Unix Time: ' + unixTimeStamp);
             res.render('show-days-times', {
                 tutors: tutors,
                 selectedSubject: selectedSubject,
@@ -155,6 +180,8 @@ app.post('/categories/show-tutors-days-times', isAuthenticated, (req, res) => {
         })
 });
 
+
+// ============== CONFIRMATION ============== //
 app.post('/confirm-appointment', isAuthenticated, (req, res) => {
     console.log('Receiving Request: ');
     console.log(req.body);

@@ -17,15 +17,14 @@ const auth = firebase.auth();
 
 /********* reference of real time database *********/
 const rootRef = database.ref();
-const tutorRef = rootRef.child('tutors');
 const appointmentsRef = rootRef.child('appointments');
 
 
 const getInstance = {
 
-    getTutorAppts: function(){
+    getAppts: function(){
         return new Promise((resolves, rejects) => {
-            tutorRef.on('value', (snapshot) => {
+            appointmentsRef.on('value', (snapshot) => {
                 resolves(snapshot);
             }, (error: any) => {
                 console.log(error);
