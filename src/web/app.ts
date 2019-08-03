@@ -6,16 +6,19 @@ import * as db from './models/Database';
 import { Subject } from "./models/Subject";
 import { Student } from "./models/Student";
 import { Tutor } from "./models/Tutor";
-import { Appointment } from "./models/Appointment";
+import {Appointment} from "./models/Appointment";
 
 const app: express.Application = express();
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: true })); // for form data
+app.use( bodyParser.json()); // for passing data from ajax call
+
 app.use(express.static(path.join(__dirname, '../../src/web/public')));
 // define the relative path for views folder
 const viewPath = path.join(__dirname, '../../src/web/views');
 app.set('views', viewPath);
 app.set('view engine', 'ejs');
 
+let uid = '';
 // ============== LANDING PAGE ============== // 
 app.get('/', (_, res) => {
     res.render('landing');
@@ -38,6 +41,7 @@ app.post('/login', (req, res) => {
         .then((value: any) => {
             const userID: string = value.user.uid;
             const userEmail: string = value.user.providerData[0].email;
+            uid = userID;
             const student: Student = new Student(userID, userEmail);
             res.redirect('/categories');
         })
@@ -94,17 +98,13 @@ app.post('/categories/show-tutors-days-times', isAuthenticated, (req, res) => {
             weekday[4] = "Thu";
             weekday[5] = "Fri";
             weekday[6] = "Sat";
-    let defaultdate = unformattedDate.getDate();
-    let defaultdayOfWeek = weekday[unformattedDate.getDay()];
-    let defaultmonth = unformattedDate.getMonth() + 1;
-    let defaultyear = unformattedDate.getFullYear();
-    let formatedDate = defaultdayOfWeek + ' ' + defaultmonth + '/' + defaultdate + '/' + defaultyear;
-    console.log('Formatted: ' + formatedDate);
+    // let defaultdate = unformattedDate.getDate();
+    // let defaultdayOfWeek = weekday[unformattedDate.getDay()];
+    // let defaultmonth = unformattedDate.getMonth() + 1;
+    // let defaultyear = unformattedDate.getFullYear();
+    // let formatedDate = defaultdayOfWeek + ' ' + defaultmonth + '/' + defaultdate + '/' + defaultyear;
 
 
-    console.log('Full Day: ' + unformattedDate);
-    console.log('Unix Time Stamp: ' + unixTimeStamp);
-    console.log('Index of Day: ' + indexOfDay);
     let tutors: Tutor[] = [];
     db.getInstance.getTutors()
         .then((value: any) => {
@@ -122,8 +122,12 @@ app.post('/categories/show-tutors-days-times', isAuthenticated, (req, res) => {
                             const firstName = data['first_name'];
                             const lastName = data['last_name'];
                             const email = data['email'];
-                            let tutor = new Tutor(id, firstName, lastName,
-                                email, subjects, work_schedules);
+                            let tutor = new Tutor(
+                                        id,
+                                        firstName,
+                                        lastName,
+                                        email,
+                                        work_schedules,)
                             tutors.push(tutor);
                         }
                     }
@@ -131,17 +135,41 @@ app.post('/categories/show-tutors-days-times', isAuthenticated, (req, res) => {
                 }
 
             });
+            console.log('Tutors: ' + tutors);
+            console.log('Subject: ' + selectedSubject);
+            console.log('Date: ' + selectedDate)
+            console.log('SubjectID: ' + selectedSubjectID);
+            console.log('Unix Time: ' + unixTimeStamp);
             res.render('show-days-times', {
                 tutors: tutors,
                 selectedSubject: selectedSubject,
-                selectedDate: selectedDate
+                selectedDate: selectedDate,
+                selectedSubjectID: selectedSubjectID,
+                unixTimeStamp: unixTimeStamp,
+                userID: uid
             });
         })
 
         .catch(error => {
             console.log(error);
         })
+});
+
+app.post('/confirm-appointment', isAuthenticated, (req, res) => {
+    console.log('Receiving Request: ');
+    console.log(req.body);
+    const apptObj = req.body;
+    const appt = new Appointment(
+        apptObj.apptDate,
+        apptObj.dateCreated,
+        apptObj.student_id,
+        apptObj.subject_id,
+        apptObj.time,
+        apptObj.tutor
+    )
+    db.getInstance.addAppointment(appt);
 })
+
 // ============== MANAGE APPOINTMENT ============== // 
 app.get('/categories/manage', isAuthenticated, (_, res) => {
 

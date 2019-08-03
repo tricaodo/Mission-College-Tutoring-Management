@@ -1,4 +1,5 @@
 import * as firebase from 'firebase';
+import {Appointment} from "./Appointment";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCEwH7H3TERDuRQDA_qbxLEs6VsdrfG2iM",
@@ -17,6 +18,7 @@ const auth = firebase.auth();
 /********* reference of real time database *********/
 const rootRef = database.ref();
 const tutorRef = rootRef.child('tutors');
+const appointmentsRef = rootRef.child('appointments');
 
 
 const getInstance = {
@@ -69,6 +71,14 @@ const getInstance = {
                 .catch(error => {
                     process.exit();
                 });
+        });
+    },
+
+    // ============== ADD APPOINTMENT ============== //
+    addAppointment: function(appt: Appointment) {
+        console.log('From database: ' + appt);
+        appointmentsRef.push(appt, (onComplete) => {
+            console.log('Added appointment successfully');
         });
     },
 

@@ -1,6 +1,7 @@
 <% include top/header %>
-<div class="tutor-box">
 
+<!-- Display tutors' schedule -->
+<div class="tutor-box">
     <% if(tutors.length < 1){ %>
         <h1>No schedule is available!</h1>
     <% } else { %>
@@ -18,22 +19,26 @@
                 </div>
                 <div class="panel-body">
                     <!-- time button  -->
-                    <% for(let i = 0; i < timesArr.length; i++) {%>
-                    <a href="#myModal" class="btn btn-xs btn-primary" data-toggle="modal" data-target="#myModal"
-                       data-subject="<%= selectedSubject %>"
-                       data-tutor="<%= data.firstName %> <%= data.lastName %>"
-                       data-tutor-id="<%= data.id %>"
-                       data-date="<%= selectedDate %>"
-                       data-start="<%= timesArr[i]['from']['time'] %>"
-                       data-end="<%= timesArr[i]['to']['time'] %>">
-                        <%= timesArr[i]['from']['time']; %>
-                    </a>
-                    <%}%>
+                    <% for(let i = 0; i < timesArr.length; i++) { %>
+                        <a href="#myModal" class="btn btn-xs btn-primary" data-toggle="modal" data-target="#myModal"
+                           data-subject-id="<%= selectedSubjectID %>"
+                           data-subject="<%= selectedSubject %>"
+                           data-tutor="<%= data.firstName %> <%= data.lastName %>"
+                           data-tutor-id="<%= data.id %>"
+                           data-student-id="<%= userID %>"
+                           data-date="<%= selectedDate %>"
+                           data-unix-time="<%= unixTimeStamp %>"
+                           data-start="<%= timesArr[i]['from']['time'] %>"
+                           data-end="<%= timesArr[i]['to']['time'] %>">
+                            <%= timesArr[i]['from']['time']; %>
+                        </a>
+                    <% } %>
                 </div>
             </div>
         <% }); %>
     <% } %>
 </div>
+<!-- End display tutors' schedule -->
 
 <!-- Confirmation box -->
 <div class="modal fade bs-example-modal-xs" tabindex="-1" id="myModal">
@@ -44,43 +49,52 @@
                             aria-hidden="true">×</span></button>
                 <h4 class="modal-title" id="mySmallModalLabel">Review Your Information</h4>
             </div>
-            <div class="modal-body" >
+            <div class="modal-body">
                 <label>Subject: </label><span id="subject"> </span><br>
-                <label>Tutor:   </label><span id="tutor"> </span><br>
-                <label>Date:    </label><span id="date"> </span> <br>
-                <label>Start:   </label><span id="start"> </span> <br>
-                <label>End:     </label><span id="end"> </span> <br>
-                <label>Notes:   </label><br>
+                <label>Tutor: </label><span id="tutor"> </span><br>
+                <label>Date: </label><span id="date"> </span> <br>
+                <label>Start: </label><span id="start"> </span> <br>
+                <label>End: </label><span id="end"> </span> <br>
+                <label>Notes: </label><br>
                 <textarea name="" id="" cols="30" rows="5"></textarea>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="confirmOk">Ok</button>
-                    <button type="button" class="btn btn-danger" id="confirmCancel">Cancel</button>
+                    <button type="button"
+                            class="btn btn-primary"
+                            id="confirmOk"
+                            data-toggle="modal"
+                            data-target="#book-appt">Book Appt</button>
+                    <button type="button"
+                            class="btn btn-danger"
+                            id="confirmCancel"
+                            data-dismiss="modal">Cancel</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
+<!-- End confirmation box -->
 
 <script>
     $(document).ready(function () {
         // show the form of modal
-        let tutor_id = '';
-        let tutor = '';
-        let subject = '';
-        let date = '';
-        let startTime = '';
-        let endTime = '';
+        let tutor_id = '', tutor = '', subject = '', date = '', startTime = '', endTime = '';
+        // these data to save to the appointment
+        let student_id = '', unixTimeStamp = '', subject_id = '';
+
+        // show form
         $(function () {
             $('#myModal').on('show.bs.modal', function (event) {
                 let button = $(event.relatedTarget); // Button that triggered the modal
                 tutor = button.data('tutor');
                 tutor_id = button.data('tutor-id');
+                student_id = button.data('student-id');
                 subject = button.data('subject');
                 date = button.data('date'); // Extract info from data-* attributes
-                startTime = button.data('start'); // Extract info from data-* attributes
-                endTime = button.data('end'); // Extract info from data-* attributes
+                startTime = button.data('start');
+                endTime = button.data('end');
+                unixTimeStamp = button.data('unix-time');
+                subject_id = button.data('subject-id');
 
                 // Extract info from data-* attributes
                 // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
@@ -93,9 +107,36 @@
                 modal.find('#end').text(endTime);
             });
         });
-        $('#confirmOk').click(function(){
-            console.log(tutor_id);
-        })
+
+        // react with Ok button
+        $('#confirmOk').on('click', (function (e) {
+            const allInformation = {
+                apptDate: unixTimeStamp,
+                dateCreated: unixTimeStamp,
+                student_id: student_id,
+                subject_id: subject_id,
+                time: {
+                    from: startTime,
+                    to: endTime
+                },
+                tutor: tutor_id
+            }
+            console.log(allInformation);
+            $.ajax({
+                url: '/confirm-appointment',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(allInformation),
+                success: function () {
+                    confirm('Your booking appointment is successful');
+                },
+                alert: function () {
+                    alert('Please try again!!!');
+                }
+            });
+            window.location.href = "/categories";// redirect to another page
+        }));
+
     });
 
 </script>

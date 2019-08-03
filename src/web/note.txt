@@ -1,5 +1,5 @@
-- changed datepicker to booking view
-- working on how to pass data from booking to show-days.times.ejs
+- working on subject id in order to save to datebase( appointment collection)
+
 
 
 
