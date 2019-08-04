@@ -2,7 +2,9 @@
 
 <!-- Display tutors' schedule -->
 <div class="tutor-box">
+
     <% if(tutors.length < 1){ %>
+
         <h1>No schedule is available!</h1>
     <% } else { %>
         <% tutors.forEach(el => { %>
@@ -27,7 +29,7 @@
                            data-tutor-id="<%= data.id %>"
                            data-student-id="<%= userID %>"
                            data-date="<%= selectedDate %>"
-                           data-unix-time="<%= unixTimeStamp %>"
+                           data-unix-time="<%= selectedDate %>"
                            data-start="<%= timesArr[i]['from']['time'] %>"
                            data-end="<%= timesArr[i]['to']['time'] %>">
                             <%= timesArr[i]['from']['time']; %>
@@ -80,7 +82,7 @@
         // show the form of modal
         let tutor_id = '', tutor = '', subject = '', date = '', startTime = '', endTime = '';
         // these data to save to the appointment
-        let student_id = '', unixTimeStamp = '', subject_id = '';
+        let student_id = '', subject_id = '', unixTimeStamp = '';
 
         // show form
         $(function () {
@@ -93,7 +95,8 @@
                 date = button.data('date'); // Extract info from data-* attributes
                 startTime = button.data('start');
                 endTime = button.data('end');
-                unixTimeStamp = button.data('unix-time');
+                let splitTime = startTime.split(" ")[0] + ":00";
+                unixTimeStamp = new Date(date + " " + splitTime).getTime() / 1000;
                 subject_id = button.data('subject-id');
 
                 // Extract info from data-* attributes
@@ -112,7 +115,7 @@
         $('#confirmOk').on('click', (function (e) {
             const allInformation = {
                 apptDate: unixTimeStamp,
-                dateCreated: unixTimeStamp,
+                dateCreated: Math.floor(Date.now()/1000),
                 student_id: student_id,
                 subject_id: subject_id,
                 time: {

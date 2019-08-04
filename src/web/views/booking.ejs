@@ -84,12 +84,6 @@
 
             let unformatDate = $('.datepick').data('DateTimePicker').date()['_d'];
             let d = new Date(unformatDate);
-            console.log('Test: ' + d.toUTCString());
-            // defaultdate = d.getDate();
-            // defaultdayOfWeek = weekday[d.getDay()];
-            // defaultmonth = d.getMonth();
-            // defaultyear = d.getFullYear();
-            // formatedDate = defaultdayOfWeek + ' ' + defaultmonth + '-' + defaultdate + '-' + defaultyear;
             formatedDate = d.toUTCString();
         })
     });

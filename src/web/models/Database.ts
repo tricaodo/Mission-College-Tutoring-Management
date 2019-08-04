@@ -23,7 +23,7 @@ const appointmentsRef = rootRef.child('appointments');
 const getInstance = {
 
     // ============== ADD APPOINTMENT ============== //
-    addAppointment: function(appt: Appointment) {
+    addAppointment: function(appt: any) {
         appointmentsRef.push(appt);
 
     },

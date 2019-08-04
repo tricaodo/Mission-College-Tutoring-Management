@@ -1,12 +1,17 @@
 export class Appointment {
 
-    constructor(public apptDate: string,
-                public dateCreated: string,
-                public student: string,
-                public subject: string,
-                public time: {from: string, to: string},
-                public tutor: string,
-                public id?: string) {
+    constructor(
+                public tutor?: string,
+                public apptDate?: string,
+                public time?: {from: string, to: string},
+                public id?: string,
+                public dateCreated?: string,
+                public student?: string,
+                public subject?: string,
+    ) {
 
     }
+
+    // constructor(public)
+
 }

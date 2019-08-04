@@ -1,360 +1,137 @@
-- how to filter the data between tutor and appointment
+// working on how to push data to array in promise because it only adds the last element
+
+app.post('/categories/show-tutors-days-times', isAuthenticated, async(req, res) => {
+
+    let subjectObj = JSON.parse(req.body.dropdownSubject);
+    let selectedDate = req.body.datepick;
+    let selectedSubjectID = subjectObj.id;
+    let selectedSubject = subjectObj.subject;
+    console.log(selectedDate);
+    let unformattedDate = new Date(selectedDate);
+    // let unixTimeStamp = Math.floor(unformattedDate.getTime()/1000); // get unix time to save when student click on confirm box
+    let indexOfDay = unformattedDate.getDay(); // get the index of day  -> ex: arr[0] = sunday
+
+    // convert to readable string date for confirmation box
+    const weekday = new Array(7);
+            weekday[0] = "Sun";
+            weekday[1] = "Mon";
+            weekday[2] = "Tue";
+            weekday[3] = "Wed";
+            weekday[4] = "Thu";
+            weekday[5] = "Fri";
+            weekday[6] = "Sat";
+    // let defaultdate = unformattedDate.getDate();
+    // let defaultdayOfWeek = weekday[unformattedDate.getDay()];
+    // let defaultmonth = unformattedDate.getMonth() + 1;
+    // let defaultyear = unformattedDate.getFullYear();
+    // let formatedDate = defaultdayOfWeek + ' ' + defaultmonth + '/' + defaultdate + '/' + defaultyear;
+
+    let tutors: Tutor[] = [];
+    let timesArrdemo: any[] = [];
+    // get tutors
+    await db.getInstance.getTutors()
+        .then( (value: any) => {
+            value.forEach( async (doc: any) => {
+
+                let data = doc.data();
+                const subjects: any[] = data['subjects'];
+                for (let i = 0; i < subjects.length; i++) {
+
+                    // filter the subject which student already chose
+                    if (subjects[i] === selectedSubjectID) {
+                        const work_schedules = data['work_schedule'][indexOfDay];
+                        if(work_schedules != null){
+
+                            const id = doc.id;
+                            const firstName = data['first_name'];
+                            const lastName = data['last_name'];
+                            const email = data['email'];
+                            const generateDateArr:string[] = [] // use to compare with appointment
+
+                            // convert schedule time to array
+                            Object.keys(work_schedules).map(function(key) {
+                                timesArrdemo.push((work_schedules[key]));
+                            });
+                            timesArrdemo.forEach(value => {
+                                let splitTime = value['from']['time'].split(" ")[0] + ":00";
+                                generateDateArr.push(selectedDate + ' ' + splitTime);
+                            })
+
+                            // get appts
+                            await db.getInstance.getAppts()
+                                .then((snapshot: any) => {
+                                    let appts: {apptDate: string, tutorID: string, time: {from: string, to: string}}[] = [];
+                                    snapshot.forEach((result: any) => {
+                                        // need apptDate, tutorID, time
+                                        const data = result.val();
+                                        const formatted = moment(data['apptDate'] * 1000).format('MM-DD-YYYY HH:mm:ss'); // convert from database
+                                        const d1 = new Date(formatted);
+                                        console.log('d1: ' + d1);
+                                        for(let i = 0; i < generateDateArr.length; i++){
+                                            // console.log('Formatted: ' + formatted);
+                                            console.log('d2: ' + new Date(generateDateArr[i]));
+                                            // if(generateDateArr[i] !== formatted){
+                                            //
+                                            // }
+                                            if(!isNaN(3)){
+                                                console.log('hit');
+                                                let tutor = new Tutor(
+                                                    id,
+                                                    firstName,
+                                                    lastName,
+                                                    email,
+                                                    work_schedules,)
+                                                tutors.push(tutor);
+                                            }
+                                        }
+                                        const appt = {
+                                            apptDate: formatted,
+                                            tutorID: data['tutor_id'],
+                                            time: data['time']
+                                        }
+
+                                        // console.log('Local Date: ' + formatted);
+                                        // const apptDate = data['apptDate'];
+                                        // const tutorID = data['tutor_id'];
+                                        // const time = data['time'];
+                                        // const appt = new Appointment(tutorID, apptDate, time);
+                                        appts.push(appt);
+                                    });
+
+                                    // const keys = Object.keys(snapshot.val());
+                                    // const values = Object.values(snapshot.val());
+                                    // console.log(keys[0]);
+                                    // for(let i = 0; i < keys.length; i++){
+                                    //     console.log(values.get)
+                                    // }
+
+                                })
+                                .catch(error => {
+                                    console.log(error);
+                                });
+
+                            //
+
+
+                        }
+                    }
 
 
 
-
-{
-    "active":true,
-    "appointments":[],
-    "email":"tintheanh@gmail.com",
-    "first_name":"Anh",
-    "is_admin":true,
-    "last_name":"Nguyen",
-    "off_time":[],
-    "staff_id":"000001121",
-    "subjects":["2tzMJcet54DRVmzSeX8l"],
-    "work_schedule":[{"0":{"from":{"order":7,"time":"10:30 AM"},"to":{"order":8,"time":"11:00 AM"}}},{"0":{"from":{"order":3,"time":"08:30 AM"},"to":{"order":4,"time":"09:00 AM"}}},null,null,{"0":{"from":{"order":10,"time":"12:00 PM"},"to":{"order":11,"time":"12:30 PM"}}},null,null]}
-
-
-
-
-
-
-
-
-<% include top/header %>
-<div class="tutor-box">
-  <div class="form-group required" style="width: 50%">
-    <div class="input-group datepick">
-      <input type="text" class="form-control" name="frmSaveOffice_startdt" id="frmSaveOffice_startdt" required readonly>
-      <div class="input-group-addon">
-        <span class="glyphicon glyphicon-calendar"></span>
-      </div>
-    </div>
-  </div>
-  <% dataTutors = tutors;%>
-  <% tutors.forEach(el => { %>
-  <% let data = JSON.stringify(el).replace('Tutor', '') %>
-  <% data = JSON.parse(data) %>
-  <% let times = data.work_schedules %>
-
-  <div class="panel panel-info">
-    <div class="panel-heading">
-      <h3 class="panel-title"><%= data.firstName  %> <%= data.lastName %></h3>
-    </div>
-    <div class="panel-body">
-      <% for(let i = 0; i < times.length; i++) {%>
-      <% if(times[i] !== null){ %>
-      <% let fromObj = times[i]['0']['from']['time'] %>
-      <!-- time button  -->
-      <a href="#myModal" class="btn btn-xs btn-primary" data-toggle="modal" data-target="#myModal"
-        data-subject="<%= selectedSubject %>" data-tutor="<%= data.firstName %> <%= data.lastName %>" data-date=""
-        data-start="" data-end=""><%= fromObj %></a>
-      <% } %>
-      <% } %>
-
-    </div>
-  </div>
-  <% }); %>
-</div>
-
-<!-- Confirmation box -->
-<div class="modal fade bs-example-modal-xs" tabindex="-1" id="myModal">
-  <div class="modal-dialog modal-sm">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-            aria-hidden="true">×</span></button>
-        <h4 class="modal-title" id="mySmallModalLabel">Codes &amp; Company</h4>
-      </div>
-      <div class="modal-body">
-        <label>Subject: </label> <span id="subject"> </span><br>
-        <label>Tutor: </label> <span id="tutor"> </span><br>
-        <label>Date: </label><span id="date"> Thu Mar 15, 2019</span> <br>
-        <label>Start: </label><span id="start"> 3:00 PM</span> <br>
-        <label>End: </label><span id="end"> 3:30 PM</span> <br>
-        <label>Notes: </label><br>
-        <textarea name="" id="" cols="30" rows="5"></textarea>
-        <hr>
-        <input type="text" id="code" readonly />
-        <input type="text" id="company" readonly />
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- Date picker -->
-<script>
-  // format datedate picker 
-  
-  $(document).ready(function () {
-    
-    console.log(dataTutors);
-    var date = new Date();
-    var tomorrow = new Date(date.getFullYear(), date.getMonth(), (date.getDate() + 1));
-    let formatedDate = '';
-    $('.datepick').datetimepicker({
-      format: "dddd MM/DD/YYYY",
-      ignoreReadonly: true,
-      minDate: tomorrow,
-      disabledDates: [date]
-    });
-
-    // ============
-    // $.ajax({
-    //   url: '/categories/show-tutors-days-times',
-    //     type: 'GET',
-    //     contentType: 'application/json',
-    //     // data: JSON.stringify({"tutors": '1'}),
-    //     success: function(response){
-    //       console.log(response);
-    //     }
-    // });
-    // console.log(tutors);
-
-    //============
-
-    var weekday = new Array(7);
-    weekday[0] = "Sun";
-    weekday[1] = "Mon";
-    weekday[2] = "Tue";
-    weekday[3] = "Wed";
-    weekday[4] = "Thu";
-    weekday[5] = "Fri";
-    weekday[6] = "Sat";
-
-    // default date when user not select date
-    let d = new Date();
-    let defaultdate = d.getDate() + 1;
-    let defaultdayOfWeek = weekday[d.getDay() + 1];
-    let defaultmonth = d.getMonth() + 1;
-    let defaultyear = d.getFullYear();
-    
-    formatedDate = defaultdayOfWeek + ' ' + defaultmonth + '/' + defaultdate + '/' + defaultyear;
-
-    // when user pick the date
-    $('.datepick').on('dp.change', (ev) => {
-      var pickdate = $('.datepick').data('DateTimePicker').date()['_d'];
-      var d = new Date(pickdate);
-      defaultdate = d.getDate();
-      defaultdayOfWeek = weekday[d.getDay()];
-      let dataTutors = <%= tutors %>;
-      defaultmonth = d.getMonth();
-      defaultyear = d.getFullYear();
-      formatedDate = defaultdayOfWeek + ' ' + defaultmonth + '/' + defaultdate + '/' + defaultyear;
-    })
-
-    // show the form of modal
-    $(function () {
-      $('#myModal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget); // Button that triggered the modal
-        var tutor = button.data('tutor');
-        // Extract info from data-* attributes
-        var subject = button.data('subject'); // Extract info from data-* attributes
-        // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
-        // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
-        var modal = $(this);
-        modal.find('#subject').text(subject);
-        modal.find('#tutor').text(tutor);
-        $('#date').text(' ' + formatedDate);
-      });
-    });
-  });
-
-  
-
-</script>
-
-
-
-
-
-
-<% include bottom/footer %>
-
-
-
-
-
-
-==================== booking ========================
-<% include top/header %>
-<h2 class="title-box-form">Select Subject & Activity</h2>
-<div class="container">
-    <div class="box-form">
-
-        <form method="GET" action="/categories/show-tutors-days-times">
-            <div class="form-group required">
-                <div class="input-group datepick">
-                    <input type="text" class="form-control" name="frmSaveOffice_startdt" id="frmSaveOffice_startdt"
-                        required readonly>
-                    <div class="input-group-addon">
-                        <span class="glyphicon glyphicon-calendar"></span>
-                    </div>
-                </div>
-            </div>
-            <select class="form-control" name="subject">
-
-                <% subject.forEach(el => { %>
-                <option id="<%= el.label %>" value='{"id": "<%= el.id %>", "subject": "<%= el.title %>"}'>
-                    <%= el.title %>
-                </option>
-                <% }); %>
-            </select>
-            <div class="radio">
-                <label>
-                    <input type="radio" name="option" value="singleday" checked>
-                    <strong>Single-day View (All Tutors)</strong>
-                </label>
-                <label>
-                    <input type="radio" name="option" value="multiday">
-                    <strong>Multi-day View (Single Tutor)</strong>
-                </label>
-            </div>
-            <div class="form-group btn-margin" style="margin-bottom:8px">
-                <input class="btn btn-primary form-control" type="submit" value="Next">
-            </div>
-            <a href="/categories" class="btn btn-primary form-control">Back</a>
-            <div class="form-group">
-
-            </div>
-        </form>
-    </div>
-</div>
-
-
-
-<!-- Date picker -->
-<script>
-    // format datedate picker 
-    
-    $(document).ready(function () {
-        var date = new Date();
-        var tomorrow = new Date(date.getFullYear(), date.getMonth(), (date.getDate() + 1));
-        let formatedDate = '';
-        $('.datepick').datetimepicker({
-            format: "dddd MM/DD/YYYY",
-            ignoreReadonly: true,
-            minDate: tomorrow,
-            disabledDates: [date]
-        });
-
-        var weekday = new Array(7);
-        weekday[0] = "Sun";
-        weekday[1] = "Mon";
-        weekday[2] = "Tue";
-        weekday[3] = "Wed";
-        weekday[4] = "Thu";
-        weekday[5] = "Fri";
-        weekday[6] = "Sat";
-
-        // default date when user not select date
-        let d = new Date();
-        let defaultdate = d.getDate() + 1;
-        let defaultdayOfWeek = weekday[d.getDay() + 1];
-        let defaultmonth = d.getMonth() + 1;
-        let defaultyear = d.getFullYear();
-
-        formatedDate = defaultdayOfWeek + ' ' + defaultmonth + '/' + defaultdate + '/' + defaultyear;
-
-        // when user pick the date
-        $('.datepick').on('dp.change', (ev) => {
-            var pickdate = $('.datepick').data('DateTimePicker').date()['_d'];
-            var d = new Date(pickdate);
-            defaultdate = d.getDate();
-            defaultdayOfWeek = weekday[d.getDay()];
-            defaultmonth = d.getMonth();
-            defaultyear = d.getFullYear();
-            formatedDate = defaultdayOfWeek + ' ' + defaultmonth + '/' + defaultdate + '/' + defaultyear;
+                }
+            console.log(tutors);
+            });
+            res.render('show-days-times', {
+                tutors: tutors,
+                selectedSubject: selectedSubject,
+                selectedDate: selectedDate,
+                selectedSubjectID: selectedSubjectID,
+                userID: uid,
+                timesArrdemo: timesArrdemo
+            });
         })
-    });
-</script>
 
-
-
-
-
-
-<% include bottom/footer %>
-==================== end booking ========================
-
-
-
-============== show-days-times ================
-<% include top/header %>
-<div class="tutor-box">
-
-  <% tutors.forEach(el => { %>
-  <% let data = JSON.stringify(el).replace('Tutor', '') %>
-  <% data = JSON.parse(data) %>
-  <% let times = data.work_schedules %>
-
-  <div class="panel panel-info">
-    <div class="panel-heading">
-      <h3 class="panel-title"><%= data.firstName  %> <%= data.lastName %></h3>
-    </div>
-    <div class="panel-body">
-      <% for(let i = 0; i < times.length; i++) {%>
-      <% if(times[i] !== null){ %>
-      <% let fromObj = times[i]['0']['from']['time'] %>
-      <!-- time button  -->
-      <a href="#myModal" class="btn btn-xs btn-primary" data-toggle="modal" data-target="#myModal" data-subject=""
-        data-tutor="" data-date="" data-start="" data-end="" ><%= fromObj %></a>
-      <% } %>
-      <% } %>
-    </div>
-  </div>
-  <% }); %>
-</div>
-
-<!-- Confirmation box -->
-<div class="modal fade bs-example-modal-xs" tabindex="-1" id="myModal">
-  <div class="modal-dialog modal-sm">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-            aria-hidden="true">×</span></button>
-        <h4 class="modal-title" id="mySmallModalLabel">Codes &amp; Company</h4>
-      </div>
-      <div class="modal-body">
-        <label>Subject: </label> <span id="subject"> </span><br>
-        <label>Tutor: </label> <span id="tutor"> </span><br>
-        <label>Date: </label><span id="date"> Thu Mar 15, 2019</span> <br>
-        <label>Start: </label><span id="start"> 3:00 PM</span> <br>
-        <label>End: </label><span id="end"> 3:30 PM</span> <br>
-        <label>Notes: </label><br>
-        <textarea name="" id="" cols="30" rows="5"></textarea>
-        <hr>
-        <input type="text" id="code" readonly />
-        <input type="text" id="company" readonly />
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<script>
-  $(document).ready(function () {
-    // show the form of modal
-    $(function () {
-      $('#myModal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget); // Button that triggered the modal
-        var tutor = button.data('tutor');
-        // Extract info from data-* attributes
-        var subject = button.data('subject'); // Extract info from data-* attributes
-        // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
-        // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
-        var modal = $(this);
-        modal.find('#subject').text(subject);
-        modal.find('#tutor').text(tutor);
-        $('#date').text(' ' + formatedDate);
-      });
-    });
-  });
-
-</script>
-
-<% include bottom/footer %>
-
-============== end show-days-times ================
+        .catch(error => {
+            console.log(error);
+        })
+});
