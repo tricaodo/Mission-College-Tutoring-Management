@@ -81,6 +81,11 @@ app.get('/categories/booking', isAuthenticated, (_, res) => {
         });
 });
 
+app.get('/show-appointments', (_, res) => {
+    res.render('show-appointments');
+
+});
+
 
 app.post('/demo', isAuthenticated, (req, res) => {
 

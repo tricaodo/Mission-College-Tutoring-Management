@@ -1,0 +1,66 @@
+<% include top/header %>
+<div class="container">
+    <div class="col-md-10">
+
+        <!-- Editable table -->
+        <div class="card">
+            <h3 class="card-header text-center font-weight-bold text-uppercase py-4">Your Appointments</h3>
+            <div class="card-body">
+                <div id="table" class="table-editable">
+        <span class="table-add float-right mb-3 mr-2">
+            <a href="#!" class="text-success">
+                <i class="fas fa-plus fa-2x" aria-hidden="true"></i>
+            </a>
+        </span>
+                    <table class="table table-responsive-md table-striped text-center">
+                        <thead>
+                        <tr>
+                            <th class="text-center">#</th>
+                            <th class="text-center">Appointment Date</th>
+                            <th class="text-center">Start</th>
+                            <th class="text-center">End</th>
+                            <th class="text-center">Subject</th>
+                            <th class="text-center">Tutor</th>
+                            <th class="text-center">Remove</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td class="pt-3-half">1</td>
+                            <td class="pt-3-half">Monday, March 19, 2019</td>
+                            <td class="pt-3-half">8:30 AM</td>
+                            <td class="pt-3-half">9:00 AM</td>
+                            <td class="pt-3-half">Data Structure</td>
+                            <td class="pt-3-half">John Doe</td>
+                            <td>
+                                <span class="table-remove">
+                                    <button type="button" class="btn btn-danger btn-rounded btn-sm my-0">Remove</button>
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+
+                        </tr>
+                        <tr>
+                            <td class="pt-3-half">2</td>
+                            <td class="pt-3-half">Thursday, April 23, 2019</td>
+                            <td class="pt-3-half">3:30 AM</td>
+                            <td class="pt-3-half">4:00 AM</td>
+                            <td class="pt-3-half">English Composition 1A</td>
+                            <td class="pt-3-half">David Lang</td>
+                            <td>
+                                <span class="table-remove">
+                                    <button type="button" class="btn btn-danger btn-rounded btn-sm my-0">Remove</button>
+                                </span>
+                            </td>
+                        </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Editable table -->
+</div>
+<% include bottom/footer %>

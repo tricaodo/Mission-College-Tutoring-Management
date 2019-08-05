@@ -12,6 +12,5 @@ export class Appointment {
 
     }
 
-    // constructor(public)
 
 }
