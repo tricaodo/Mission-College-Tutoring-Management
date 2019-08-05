@@ -3,13 +3,12 @@ import express = require('express');
 import bodyParser = require('body-parser');
 import path = require('path');
 import moment = require('moment');
-import async = require('async');
-
 
 import * as db from './models/Database';
 import {Subject} from "./models/Subject";
 import {Student} from "./models/Student";
-import {Tutor} from "./models/Tutor";
+
+
 
 
 const app: express.Application = express();
@@ -83,6 +82,254 @@ app.get('/categories/booking', isAuthenticated, (_, res) => {
 });
 
 
+app.post('/demo', isAuthenticated, (req, res) => {
+
+    let subjectObj = JSON.parse(req.body.dropdownSubject);
+    let selectedDate = req.body.datepick;
+    let selectedSubjectID = subjectObj.id;
+    let selectedSubject = subjectObj.subject;
+    let unformattedDate = new Date(selectedDate);
+    // let unixTimeStamp = Math.floor(unformattedDate.getTime()/1000); // get unix time to save when student click on confirm box
+    let indexOfDay = unformattedDate.getDay(); // get the index of day  -> ex: arr[0] = sunday
+
+    // convert to readable string date for confirmation box
+    const weekday = new Array(7);
+    weekday[0] = "Sun";
+    weekday[1] = "Mon";
+    weekday[2] = "Tue";
+    weekday[3] = "Wed";
+    weekday[4] = "Thu";
+    weekday[5] = "Fri";
+    weekday[6] = "Sat";
+    // let defaultdate = unformattedDate.getDate();
+    // let defaultdayOfWeek = weekday[unformattedDate.getDay()];
+    // let defaultmonth = unformattedDate.getMonth() + 1;
+    // let defaultyear = unformattedDate.getFullYear();
+    // let formatedDate = defaultdayOfWeek + ' ' + defaultmonth + '/' + defaultdate + '/' + defaultyear;
+
+
+    // get tutors
+    let tutors: {
+        id: string, firstName: string, lastName: string,
+        work_schedules: { from: string, to: string }[],
+        // timeArrToCompare: string[]
+    }[] = [];
+    const tutorPromise = db.getInstance.getTutors()
+        .then((value: any) => {
+            value.forEach((doc: any) => {
+                let data = doc.data();
+                const subjects: any[] = data['subjects'];
+                for (let i = 0; i < subjects.length; i++) {
+                    // filter the subject which student already chose
+                    if (subjects[i] === selectedSubjectID) {
+                        const work_schedules = data['work_schedule'][indexOfDay];
+                        if (work_schedules != null) {
+                            const tutor = {
+                                id: doc.id,
+                                firstName: data['first_name'],
+                                lastName: data['last_name'],
+                                work_schedules: work_schedules,
+                                // timeArrToCompare: timeArrToCompare
+                            }
+                            tutors.push(tutor);
+                        }
+                    }
+                }
+
+            });
+
+        })
+        .catch(error => {
+            console.log(error);
+        });
+    // get appts
+    let appts: { apptDate: string, tutorID: string, time: { from: string, to: string } }[] = [];
+    const apptPromise = db.getInstance.getAppts()
+        .then((snapshot: any) => {
+            let apptSnapshot: any = Object.values(snapshot.val());
+
+            for (let i = 0; i < apptSnapshot.length; i++) {
+                const appt = {
+                    apptDate: apptSnapshot[i]['apptDate'],
+                    tutorID: apptSnapshot[i]['tutor_id'],
+                    time: apptSnapshot[i]['time']
+                }
+                appts.push(appt);
+            }
+            // console.log(appts);
+            return appts;
+        });
+
+    Promise.all([tutorPromise, apptPromise])
+        .then((result) => {
+            console.log(appts);
+            console.log(tutors);
+            let finalResArr: {
+                tutorID: string, firstName: string, lastName: string,
+                work_schedules: { from: string, to: string }[],
+                subjectID: string, subject: string
+            }[] = [];
+            for (let appIndex = 0; appIndex < appts.length; appIndex++) {
+                const apptData: any = appts[appIndex];
+                const apptTutorID = apptData['tutorID'];
+                for (let tutorIndex = 0; tutorIndex < tutors.length; tutorIndex++) {
+                    const tutorData: any = tutors[tutorIndex], timeArr = tutorData['timeArrToCompare'];
+                    if(apptTutorID === tutorData['id']){
+                        let isValid = false;
+
+                        const readableDateTime = moment(apptData['apptDate'] * 1000).format('MM-DD-YYYY HH:mm:ss').split(" "); // convert from database
+                        const readableDate = readableDateTime[0];
+                        const readableTime = readableDateTime[1];
+                        const work_schedules = tutorData['work_schedules'];
+                        // get the map of schedule_times \\ seperate function
+                        let unfilterTimeArr: any = Object.values(work_schedules);
+                        for (let i = 0; i < unfilterTimeArr.length; i++) {
+                            const splitTimeFrom = unfilterTimeArr[i]['from']['time'].split(" ")[0];
+                            const appendSplitTime = splitTimeFrom + ":00"
+
+                            // same date and different time zone
+                            const timeArr: {from: string, to: string}[] = [];
+                            if(readableDate === selectedDate){
+                                if(readableTime !== appendSplitTime){
+                                    isValid = true;
+                                    const splitTimeTo = unfilterTimeArr[i]['to']['time'].split(" ")[0]
+                                    console.log(readableDate + ' - ' + selectedDate);
+                                    console.log(readableTime + ' - ' + appendSplitTime);
+                                    timeArr.push({from: splitTimeFrom, to: splitTimeTo});
+                                    // const finalRes = {
+                                    //     tutorID: tutorData['id'],
+                                    //     firstName: tutorData['firstName'],
+                                    //     lastName: tutorData['lastName'],
+                                    //     work_schedules: timeArr,
+                                    //     subjectID: selectedSubjectID,
+                                    //     subject: selectedSubject
+                                    // }
+                                    // finalResArr.push(finalRes);
+                                }
+                            }
+                            if(isValid){
+                                const finalRes = {
+                                    tutorID: tutorData['id'],
+                                    firstName: tutorData['firstName'],
+                                    lastName: tutorData['lastName'],
+                                    work_schedules: Object.assign({}, timeArr),
+                                    subjectID: selectedSubjectID,
+                                    subject: selectedSubject
+                                }
+                                finalResArr.push(finalRes);
+                                isValid = false;
+                            }
+                        }
+
+
+                        // for(let timeIndex = 0; timeIndex < timeArr.length; timeIndex++){
+                        //     if(readableDate !== timeArr[timeIndex]){
+                        //         const finalRes = {
+                        //             tutorID: tutorData['id'],
+                        //             firstName: tutorData['firstName'],
+                        //             lastName: tutorData['lastName'],
+                        //             work_schedules: work_schedules,
+                        //             subjectID: selectedSubjectID,
+                        //             subject: selectedSubject
+                        //         }
+                        //         finalResArr.push(finalRes);
+                        //     }
+                        // }
+                    }else{
+                        let isValid = false;
+
+                        const readableDateTime = moment(apptData['apptDate'] * 1000).format('MM-DD-YYYY HH:mm:ss').split(" "); // convert from database
+                        const readableDate = readableDateTime[0];
+                        const readableTime = readableDateTime[1];
+                        const work_schedules = tutorData['work_schedules'];
+                        // get the map of schedule_times \\ seperate function
+                        let unfilterTimeArr: any = Object.values(work_schedules);
+                        for (let i = 0; i < unfilterTimeArr.length; i++) {
+                            const splitTimeFrom = unfilterTimeArr[i]['from']['time'].split(" ")[0];
+                            const appendSplitTime = splitTimeFrom + ":00"
+
+                            // same date and different time zone
+                            const timeArr: {from: string, to: string}[] = [];
+                            if(readableDate === selectedDate){
+                                if(readableTime !== appendSplitTime){
+                                    isValid = true;
+                                    const splitTimeTo = unfilterTimeArr[i]['to']['time'].split(" ")[0]
+                                    console.log(readableDate + ' - ' + selectedDate);
+                                    console.log(readableTime + ' - ' + appendSplitTime);
+                                    timeArr.push({from: splitTimeFrom, to: splitTimeTo});
+                                    // const finalRes = {
+                                    //     tutorID: tutorData['id'],
+                                    //     firstName: tutorData['firstName'],
+                                    //     lastName: tutorData['lastName'],
+                                    //     work_schedules: timeArr,
+                                    //     subjectID: selectedSubjectID,
+                                    //     subject: selectedSubject
+                                    // }
+                                    // finalResArr.push(finalRes);
+                                }
+                            }
+                            if(isValid){
+                                const finalRes = {
+                                    tutorID: tutorData['id'],
+                                    firstName: tutorData['firstName'],
+                                    lastName: tutorData['lastName'],
+                                    work_schedules: Object.assign({}, timeArr),
+                                    subjectID: selectedSubjectID,
+                                    subject: selectedSubject
+                                }
+                                finalResArr.push(finalRes);
+                                isValid = false;
+                            }
+                        }
+                    }
+                }
+            }
+            console.log(finalResArr);
+            // for (let i = 0; i < tutors.length; i++) {
+            //     const tutorData: any = tutors[i];
+            //     const tutorID = tutorData['id'], timeArr = tutorData['timeArrToCompare'];
+            //
+            //     for (let l = 0; l < timeArr.length; l++) {
+            //         const timeArrEl = timeArr[l];
+            //         for (let j = 0; j < appts.length; j++) {
+            //             const apptData: any = appts[j];
+            //             const readableDate = moment(apptData['apptDate'] * 1000).format('MM-DD-YYYY HH:mm:ss'); // convert from database
+            //             const apptTutorID = apptData['tutorID'];
+            //
+            //             if (tutorID === apptTutorID && readableDate !== timeArrEl) {
+            //                 const firstName = tutorData['firstName'], lastName = tutorData['lastName'],
+            //                         work_schedules = tutorData['work_schedules']
+            //                 const finalRes = {
+            //                     tutorID: tutorID,
+            //                     firstName: firstName,
+            //                     lastName: lastName,
+            //                     work_schedules: work_schedules,
+            //                     subjectID: selectedSubjectID,
+            //                     subject: selectedSubject
+            //                 }
+            //                 finalResArr.push(finalRes);
+            //             }
+            //
+            //         }
+            //     }
+            // }
+
+            res.render('demo', {
+                // finalRes: finalResArr
+                tutors: tutors,
+                appts: appts,
+            });
+        })
+        .catch(error => {
+            console.log(error);
+        });
+
+});
+
+
+// working on how to push data to array in promise because it only adds the last element
+
+/*
 app.post('/categories/show-tutors-days-times', isAuthenticated, (req, res) => {
 
     let subjectObj = JSON.parse(req.body.dropdownSubject);
@@ -110,100 +357,9 @@ app.post('/categories/show-tutors-days-times', isAuthenticated, (req, res) => {
     // let formatedDate = defaultdayOfWeek + ' ' + defaultmonth + '/' + defaultdate + '/' + defaultyear;
 
     let tutors: Tutor[] = [];
-
-    // get tutors
-    const tutorPromise = db.getInstance.getTutors()
-        .then((value: any) => {
-            value.forEach((doc: any) => {
-
-                let data = doc.data();
-                console.log('length: ' + data.length);
-                const subjects: any[] = data['subjects'];
-                for (let i = 0; i < subjects.length; i++) {
-
-                    // filter the subject which student already chose
-                    if (subjects[i] === selectedSubjectID) {
-                        const work_schedules = data['work_schedule'][indexOfDay];
-                        if (work_schedules != null) {
-
-                            const id = doc.id;
-                            const firstName = data['first_name'];
-                            const lastName = data['last_name'];
-                            const email = data['email'];
-
-                            let tutor = new Tutor(
-                                id,
-                                firstName,
-                                lastName,
-                                email,
-                                work_schedules,)
-                            tutors.push(tutor);
-                        }
-                    }
-                }
-            });
-        })
-        .catch(error => {
-            console.log(error);
-        });
-
-    let appts: { apptDate: string, tutorID: string, time: { from: string, to: string } }[] = [];
-    const apptPromise = db.getInstance.getAppts()
-
-        .then((snapshot: any) => {
-
-            snapshot.forEach((result: any) => {
-                const data = result.val();
-                const formatted = moment(data['apptDate'] * 1000).format('MM-DD-YYYY HH:mm:ss'); // convert from database
-                const appt = {
-                    apptDate: formatted,
-                    tutorID: data['tutor_id'],
-                    time: data['time']
-                }
-                appts.push(appt);
-            });
-
-            return appts;
-        });
-    Promise.all([tutorPromise, apptPromise])
-        .then((result) => {
-            console.log(result[1]);
-        })
-
-});
-
-
-/*
-app.post('/categories/show-tutors-days-times', isAuthenticated, (req, res) => {
-
-    let subjectObj = JSON.parse(req.body.dropdownSubject);
-    let selectedDate = req.body.datepick;
-    let selectedSubjectID = subjectObj.id;
-    let selectedSubject = subjectObj.subject;
-    console.log(selectedDate);
-    let unformattedDate = new Date(selectedDate);
-    // let unixTimeStamp = Math.floor(unformattedDate.getTime()/1000); // get unix time to save when student click on confirm box
-    let indexOfDay = unformattedDate.getDay(); // get the index of day  -> ex: arr[0] = sunday
-
-    // convert to readable string date for confirmation box
-    const weekday = new Array(7);
-            weekday[0] = "Sun";
-            weekday[1] = "Mon";
-            weekday[2] = "Tue";
-            weekday[3] = "Wed";
-            weekday[4] = "Thu";
-            weekday[5] = "Fri";
-            weekday[6] = "Sat";
-    // let defaultdate = unformattedDate.getDate();
-    // let defaultdayOfWeek = weekday[unformattedDate.getDay()];
-    // let defaultmonth = unformattedDate.getMonth() + 1;
-    // let defaultyear = unformattedDate.getFullYear();
-    // let formatedDate = defaultdayOfWeek + ' ' + defaultmonth + '/' + defaultdate + '/' + defaultyear;
-
-    let tutors: Tutor[] = [];
     let timesArrdemo: any[] = [];
     // get tutors
-    db.getInstance.getTutors()
+     db.getInstance.getTutors()
         .then( (value: any) => {
             value.forEach( async (doc: any) => {
 
@@ -231,58 +387,13 @@ app.post('/categories/show-tutors-days-times', isAuthenticated, (req, res) => {
                                 generateDateArr.push(selectedDate + ' ' + splitTime);
                             })
 
-                            // get appts
-                            await db.getInstance.getAppts()
-                                .then((snapshot: any) => {
-                                    let appts: {apptDate: string, tutorID: string, time: {from: string, to: string}}[] = [];
-                                    snapshot.forEach((result: any) => {
-                                        // need apptDate, tutorID, time
-                                        const data = result.val();
-                                        const formatted = moment(data['apptDate'] * 1000).format('MM-DD-YYYY HH:mm:ss'); // convert from database
-                                        const d1 = new Date(formatted);
-                                        console.log('d1: ' + d1);
-                                        for(let i = 0; i < generateDateArr.length; i++){
-                                            // console.log('Formatted: ' + formatted);
-                                            console.log('d2: ' + new Date(generateDateArr[i]));
-                                            // if(generateDateArr[i] !== formatted){
-                                            //
-                                            // }
-                                            if(!isNaN(3)){
-                                                console.log('hit');
-                                                let tutor = new Tutor(
-                                                    id,
-                                                    firstName,
-                                                    lastName,
-                                                    email,
-                                                    work_schedules,)
-                                                tutors.push(tutor);
-                                            }
-                                        }
-                                        const appt = {
-                                            apptDate: formatted,
-                                            tutorID: data['tutor_id'],
-                                            time: data['time']
-                                        }
-
-                                        // console.log('Local Date: ' + formatted);
-                                        // const apptDate = data['apptDate'];
-                                        // const tutorID = data['tutor_id'];
-                                        // const time = data['time'];
-                                        // const appt = new Appointment(tutorID, apptDate, time);
-                                        appts.push(appt);
-                                    });
-
-                                    // const keys = Object.keys(snapshot.val());
-                                    // const values = Object.values(snapshot.val());
-                                    // console.log(keys[0]);
-                                    // for(let i = 0; i < keys.length; i++){
-                                    //     console.log(values.get)
-                                    // }
-
-                                })
-                                .catch(error => {
-                                    console.log(error);
-                                });
+                            let tutor = new Tutor(
+                                id,
+                                firstName,
+                                lastName,
+                                email,
+                                work_schedules,)
+                            tutors.push(tutor);
 
                             //
 
@@ -293,7 +404,7 @@ app.post('/categories/show-tutors-days-times', isAuthenticated, (req, res) => {
 
 
                 }
-            console.log(tutors);
+                console.log(tutors);
             });
             res.render('show-days-times', {
                 tutors: tutors,
@@ -311,6 +422,7 @@ app.post('/categories/show-tutors-days-times', isAuthenticated, (req, res) => {
 });
 
 */
+
 // ============== CONFIRMATION ============== //
 app.post('/confirm-appointment', isAuthenticated, (req, res) => {
     const apptObj = req.body;
